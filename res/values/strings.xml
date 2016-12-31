@@ -14,5 +14,6 @@
     <string name="stop">Stop</string>
     <string name="gps_enabled">GPS Enabled</string>
     <string name="gps_disabled">GPS Disabled</string>
+    <string name="run_desc">Run record in: %tT</string>
     
 </resources>

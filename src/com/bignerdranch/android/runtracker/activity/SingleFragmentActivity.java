@@ -9,7 +9,7 @@ import com.bignerdranch.android.runtracker.R;
 
 public abstract class SingleFragmentActivity extends ActionBarActivity {
 	
-	public abstract Fragment createFragment();
+	protected abstract Fragment createFragment();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
