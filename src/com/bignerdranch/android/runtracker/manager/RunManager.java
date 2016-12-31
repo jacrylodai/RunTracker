@@ -3,10 +3,16 @@ package com.bignerdranch.android.runtracker.manager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.bignerdranch.android.runtracker.db.RunDatabaseHelper;
+import com.bignerdranch.android.runtracker.domain.LocationData;
+import com.bignerdranch.android.runtracker.domain.Run;
 
 public class RunManager {
 	
@@ -20,6 +26,8 @@ public class RunManager {
 	private static final int MIN_TIME = 1*1000;
 	
 	private static final int MIN_DISTANCE = 2;
+	
+	private static final String PREF_CURRENT_RUN_ID = "currentRunId";
 
 	private static RunManager sInstance;
 	
@@ -27,11 +35,17 @@ public class RunManager {
 	
 	private LocationManager mLocationManager;
 	
+	private RunDatabaseHelper mDatabaseHelper;
+	
+	private SharedPreferences mPref;
+	
 	private RunManager(Context appContext){
 		
 		mAppContext = appContext;
 		mLocationManager = 
 				(LocationManager) appContext.getSystemService(Context.LOCATION_SERVICE);
+		mDatabaseHelper = new RunDatabaseHelper(appContext);
+		mPref = PreferenceManager.getDefaultSharedPreferences(appContext);
 	}
 	
 	public static RunManager getInstance(Context context){
@@ -40,6 +54,29 @@ public class RunManager {
 			sInstance = new RunManager(context.getApplicationContext());
 		}
 		return sInstance;
+	}
+	
+	public Run startNewRun(){
+		
+		Run run = new Run();
+		run.setRunId(mDatabaseHelper.insertRun(run));
+		
+		mPref.edit()
+			.putLong(PREF_CURRENT_RUN_ID, run.getRunId())
+			.commit();
+		
+		startLocationUpdates();
+		
+		return run;
+	}
+	
+	public void stopRun(){
+
+		stopLocationUpdates();
+		
+		mPref.edit()
+			.remove(PREF_CURRENT_RUN_ID)
+			.commit();		
 	}
 	
 	public void startLocationUpdates(){
@@ -99,6 +136,17 @@ public class RunManager {
 		if(pendingIntent != null){
 			mLocationManager.removeUpdates(pendingIntent);
 			pendingIntent.cancel();
+		}
+	}
+	
+	public void insertLocationData(LocationData locationData){
+		
+		long currentRunId = mPref.getLong(PREF_CURRENT_RUN_ID, -1);
+		if(currentRunId != -1){
+			locationData.setFKRunId(currentRunId);
+			mDatabaseHelper.insertLocation(locationData);
+		}else{
+			Log.e(TAG, "Location received with no tracking run: ignore");
 		}
 	}
 	

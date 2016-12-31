@@ -3,11 +3,22 @@ package com.bignerdranch.android.runtracker.domain;
 import java.util.Date;
 
 public class Run {
+	
+	private long mRunId;
 
 	private Date mStartDate;
 	
 	public Run(){
+		mRunId = -1;
 		mStartDate = new Date();
+	}
+
+	public long getRunId() {
+		return mRunId;
+	}
+
+	public void setRunId(long runId) {
+		mRunId = runId;
 	}
 
 	public void setStartDate(Date startDate) {

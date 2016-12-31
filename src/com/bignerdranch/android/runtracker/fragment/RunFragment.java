@@ -1,6 +1,5 @@
 package com.bignerdranch.android.runtracker.fragment;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.Activity;
@@ -10,6 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,8 +84,7 @@ public class RunFragment extends Fragment {
 			public void onClick(View v) {
 				
 				Log.i(TAG, "press start button");
-				mRunManager.startLocationUpdates();
-				mRun = new Run();
+				mRun = mRunManager.startNewRun();
 				mLastLocation = null;
 				updateButtonUI();
 				updateUI();
@@ -99,7 +98,7 @@ public class RunFragment extends Fragment {
 			public void onClick(View v) {
 
 				Log.i(TAG, "press stop button");
-				mRunManager.stopLocationUpdates();
+				mRunManager.stopRun();
 				updateButtonUI();
 				updateUI();
 			}
@@ -131,10 +130,10 @@ public class RunFragment extends Fragment {
 	
 	private void updateUI(){
 		
-		if(mRun != null){
+		Activity activity = getActivity();
+		if(mRun != null && activity != null){
 			Date startDate = mRun.getStartDate();
-			SimpleDateFormat dateF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			String startDateStr = dateF.format(startDate);
+			String startDateStr = DateFormat.getMediumDateFormat(activity).format(startDate);
 			mStartedTextView.setText(startDateStr);
 		}else{
 			mStartedTextView.setText("");

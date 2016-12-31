@@ -31,7 +31,7 @@
         </activity>
         
         <receiver 
-            android:name="com.bignerdranch.android.runtracker.receiver.LocationReceiver"
+            android:name="com.bignerdranch.android.runtracker.receiver.TrackingLocationReceiver"
             android:exported="false"
             >
             <intent-filter>
