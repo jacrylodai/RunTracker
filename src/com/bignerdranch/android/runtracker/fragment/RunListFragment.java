@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bignerdranch.android.runtracker.R;
@@ -44,6 +45,17 @@ public class RunListFragment extends ListFragment {
 		
 		mAdapter = new RunCursorAdapter(getActivity(), mRunCursor);
 		setListAdapter(mAdapter);
+	}
+	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		
+		Log.i(TAG, "onListItemClick");
+		Log.i(TAG,"runId:"+id);
+		
+		Intent intent = new Intent(getActivity(),RunActivity.class);
+		intent.putExtra(RunActivity.EXTRA_RUN_ID, id);
+		startActivity(intent);
 	}
 	
 	@Override

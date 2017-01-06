@@ -27,13 +27,17 @@ public class RunFragment extends Fragment {
 	
 	private static final String TAG = "RunFragment";
 
+	private static final String ARG_RUN_ID = "RUN_ID";
+
     private Button mStartButton, mStopButton;
-    private TextView mStartedTextView, mLatitudeTextView, 
+    private TextView mTVCurrentRunStatus,mStartedTextView, mLatitudeTextView, 
         mLongitudeTextView, mAltitudeTextView, mDurationTextView;
     
     private RunManager mRunManager;
     
     private Run mRun;
+    
+    private boolean isTrackingCurrentRun;
     
     private Location mLastLocation;
     
@@ -41,6 +45,10 @@ public class RunFragment extends Fragment {
     	
     	protected void onLocationReceived(Context context, Location location) {
     		Log.i(TAG, "onLocationReceived");
+    		//如果没有记录当前的旅程，则不要显示地理信息
+    		if(!isTrackingCurrentRun){
+    			return;
+    		}
     		mLastLocation = location;
     		if(RunFragment.this.isVisible()){
         		updateUI();
@@ -56,13 +64,35 @@ public class RunFragment extends Fragment {
     		}
     	};
     };
-    
+	
+	public static RunFragment newInstance(long runId){
+		
+		Bundle args = new Bundle();
+		args.putLong(ARG_RUN_ID, runId);
+		
+		RunFragment runFragment = new RunFragment();
+		runFragment.setArguments(args);
+		return runFragment;
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setRetainInstance(true);
 		
 		mRunManager = RunManager.getInstance(getActivity());
+		Bundle args = getArguments();
+		if(args != null && args.containsKey(ARG_RUN_ID)){
+			long runId = args.getLong(ARG_RUN_ID,-1);
+			Log.i(TAG, "get runId:"+runId);
+			
+			if(runId != -1){
+				Run run = mRunManager.queryRunById(runId);
+				mRun = run;
+			}
+		}
+		
+		checkIsTrackingCurrentRun();
 	}
 	
 	@Override
@@ -71,12 +101,13 @@ public class RunFragment extends Fragment {
 
 		View view = inflater.inflate(R.layout.fragment_run, container, false);
         
+		mTVCurrentRunStatus = (TextView) view.findViewById(R.id.tv_current_run_status);
         mStartedTextView = (TextView)view.findViewById(R.id.run_startedTextView);
         mLatitudeTextView = (TextView)view.findViewById(R.id.run_latitudeTextView);
         mLongitudeTextView = (TextView)view.findViewById(R.id.run_longitudeTextView);
         mAltitudeTextView = (TextView)view.findViewById(R.id.run_altitudeTextView);
         mDurationTextView = (TextView)view.findViewById(R.id.run_durationTextView);
-        
+                
         mStartButton = (Button)view.findViewById(R.id.run_startButton);
         mStartButton.setOnClickListener(new View.OnClickListener() {
 			
@@ -84,8 +115,12 @@ public class RunFragment extends Fragment {
 			public void onClick(View v) {
 				
 				Log.i(TAG, "press start button");
-				mRun = mRunManager.startNewRun();
-				mLastLocation = null;
+				if(mRun != null){
+					mRunManager.startCurrentRun(mRun);
+				}else{
+					mRun = mRunManager.startNewRun();
+				}
+				checkIsTrackingCurrentRun();
 				updateButtonUI();
 				updateUI();
 			}
@@ -99,13 +134,12 @@ public class RunFragment extends Fragment {
 
 				Log.i(TAG, "press stop button");
 				mRunManager.stopRun();
+				checkIsTrackingCurrentRun();
 				updateButtonUI();
 				updateUI();
 			}
 		});
         
-        mRun = null;
-        mLastLocation = null;
         updateButtonUI();
         updateUI();
         
@@ -128,7 +162,27 @@ public class RunFragment extends Fragment {
 		super.onStop();		
 	}
 	
+	private void checkIsTrackingCurrentRun(){
+		
+		if(mRun != null && mRunManager.isTrackingRun()){
+			long currentTrackingRunId = mRunManager.getCurrentTrackingRunId();
+			if(currentTrackingRunId == mRun.getRunId()){
+				isTrackingCurrentRun = true;
+			}else{
+				isTrackingCurrentRun = false;
+			}
+		}else{
+			isTrackingCurrentRun = false;
+		}
+	}
+	
 	private void updateUI(){
+
+        if(isTrackingCurrentRun){
+        	mTVCurrentRunStatus.setText(R.string.string_tracking_current_run);
+        }else{
+        	mTVCurrentRunStatus.setText(R.string.string_not_tracking_current_run);
+        }
 		
 		Activity activity = getActivity();
 		if(mRun != null && activity != null){
@@ -160,7 +214,12 @@ public class RunFragment extends Fragment {
 		boolean running = mRunManager.isTrackingRun();
 		if(running){
 			mStartButton.setEnabled(false);
-			mStopButton.setEnabled(true);
+			//如果正在跟踪当前旅程，那么可以停止，否则不可以停止
+			if(isTrackingCurrentRun){
+				mStopButton.setEnabled(true);
+			}else{
+				mStopButton.setEnabled(false);
+			}
 		}else{
 			mStartButton.setEnabled(true);
 			mStopButton.setEnabled(false);

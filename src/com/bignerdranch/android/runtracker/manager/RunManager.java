@@ -71,6 +71,15 @@ public class RunManager {
 		return run;
 	}
 	
+	public void startCurrentRun(Run run){
+		
+		mPref.edit()
+			.putLong(PREF_CURRENT_RUN_ID, run.getRunId())
+			.commit();
+		
+		startLocationUpdates();		
+	}
+	
 	public void stopRun(){
 
 		stopLocationUpdates();
@@ -153,6 +162,25 @@ public class RunManager {
 	
 	public RunCursor queryRunList(){
 		return mDatabaseHelper.queryRunList();
+	}
+	
+	public Run queryRunById(long runId){
+		
+		Run run = null;
+		RunCursor runCursor = mDatabaseHelper.queryRunById(runId);
+		if(runCursor.moveToNext()){
+			run = runCursor.getRun();
+		}
+		runCursor.close();
+		return run;
+	}
+	
+	public long getCurrentTrackingRunId(){
+		if(isTrackingRun()){
+			return mPref.getLong(PREF_CURRENT_RUN_ID, -1);
+		}else{
+			return -1;
+		}
 	}
 	
 }

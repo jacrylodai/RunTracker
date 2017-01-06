@@ -99,6 +99,20 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 						, COLUMN_RUN_START_DATE + " desc");
 		return new RunCursor(wrapped);
 	}
+	
+	public RunCursor queryRunById(long runId){
+		Cursor wrapped = getReadableDatabase()
+				.query(
+						TABLE_RUN_NAME
+						, null
+						, COLUMN_RUN_RUN_ID + "=?"
+						, new String[]{String.valueOf(runId)}
+						, null
+						, null
+						, COLUMN_RUN_START_DATE + " desc"
+						,"1");
+		return new RunCursor(wrapped);
+	}
 
 	public static class RunCursor extends CursorWrapper{
 
