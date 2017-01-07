@@ -2,6 +2,8 @@ package com.bignerdranch.android.runtracker.domain;
 
 import java.util.Date;
 
+import android.location.Location;
+
 public class LocationData {
 
 	private long mLocationDataId;
@@ -72,6 +74,18 @@ public class LocationData {
 
 	public void setProvider(String provider) {
 		mProvider = provider;
+	}
+
+	public static LocationData parseLocation(Location location) {
+		
+		LocationData locationData = new LocationData();
+		Date timestamp = new Date(location.getTime());
+		locationData.setTimestamp(timestamp);
+		locationData.setLatitude(location.getLatitude());
+		locationData.setLongitude(location.getLongitude());
+		locationData.setAltitude(location.getAltitude());
+		locationData.setProvider(location.getProvider());
+		return locationData;
 	}
 	
 }

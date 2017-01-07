@@ -113,6 +113,21 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 						,"1");
 		return new RunCursor(wrapped);
 	}
+	
+	public LocationDataCursor queryLatestLocationDataByRunId(long runId){
+		
+		Cursor cursor = getReadableDatabase().query(
+				TABLE_LOCATION_DATA_NAME
+				, null
+				, COLUMN_LOCATION_DATA_FK_RUN_ID + "=?"
+				, new String[]{String.valueOf(runId)}
+				, null
+				, null
+				, COLUMN_LOCATION_DATA_TIMESTAMP + " desc"
+				, "1");
+		
+		return new LocationDataCursor(cursor);
+	}
 
 	public static class RunCursor extends CursorWrapper{
 
@@ -132,6 +147,35 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 			run.setRunId(runId);
 			run.setStartDate(startDate);
 			return run;
+		}
+		
+	}
+	
+	public static class LocationDataCursor extends CursorWrapper{
+
+		public LocationDataCursor(Cursor cursor) {
+			super(cursor);
+		}
+		
+		public LocationData getLocationData(){
+			
+			if(isBeforeFirst() || isAfterLast()){
+				return null;
+			}
+			
+			LocationData locaData = new LocationData();
+			locaData.setLocationDataId(getLong(getColumnIndex(COLUMN_LOCATION_DATA_LOCATION_DATA_ID)));
+			locaData.setFKRunId(getLong(getColumnIndex(COLUMN_LOCATION_DATA_FK_RUN_ID)));
+			
+			Date timestamp = new Date(getLong(getColumnIndex(COLUMN_LOCATION_DATA_TIMESTAMP)));
+			locaData.setTimestamp(timestamp);
+			
+			locaData.setLatitude(getDouble(getColumnIndex(COLUMN_LOCATION_DATA_LATITUDE)));
+			locaData.setLongitude(getDouble(getColumnIndex(COLUMN_LOCATION_DATA_LONGITUDE)));
+			locaData.setAltitude(getDouble(getColumnIndex(COLUMN_LOCATION_DATA_ALTITUDE)));
+			locaData.setProvider(getString(getColumnIndex(COLUMN_LOCATION_DATA_PROVIDER)));
+			
+			return locaData;
 		}
 		
 	}

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bignerdranch.android.runtracker.R;
+import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.manager.RunManager;
 import com.bignerdranch.android.runtracker.receiver.LocationReceiver;
@@ -39,7 +40,7 @@ public class RunFragment extends Fragment {
     
     private boolean isTrackingCurrentRun;
     
-    private Location mLastLocation;
+    private LocationData mLastLocationData;
     
     private LocationReceiver locationReceiver = new LocationReceiver(){
     	
@@ -49,7 +50,7 @@ public class RunFragment extends Fragment {
     		if(!isTrackingCurrentRun){
     			return;
     		}
-    		mLastLocation = location;
+    		mLastLocationData = LocationData.parseLocation(location);
     		if(RunFragment.this.isVisible()){
         		updateUI();
     		}
@@ -89,6 +90,9 @@ public class RunFragment extends Fragment {
 			if(runId != -1){
 				Run run = mRunManager.queryRunById(runId);
 				mRun = run;
+				
+				LocationData locationData = mRunManager.queryLatestLocationDataByRunId(runId);
+				mLastLocationData = locationData;
 			}
 		}
 		
@@ -193,12 +197,13 @@ public class RunFragment extends Fragment {
 			mStartedTextView.setText("");
 		}
 		
-		if(mRun != null && mLastLocation != null){
-			mLatitudeTextView.setText(String.valueOf(mLastLocation.getLatitude()));
-			mLongitudeTextView.setText(String.valueOf(mLastLocation.getLongitude()));
-			mAltitudeTextView.setText(String.valueOf(mLastLocation.getAltitude()));
+		if(mRun != null && mLastLocationData != null){
+			mLatitudeTextView.setText(String.valueOf(mLastLocationData.getLatitude()));
+			mLongitudeTextView.setText(String.valueOf(mLastLocationData.getLongitude()));
+			mAltitudeTextView.setText(String.valueOf(mLastLocationData.getAltitude()));
 			
-			int durationSeconds = mRun.getDurationSeconds(mLastLocation.getTime());
+			int durationSeconds = mRun.getDurationSeconds(
+					mLastLocationData.getTimestamp().getTime());
 			String durationStr = Run.formatDuration(durationSeconds);
 			mDurationTextView.setText(durationStr);
 		}else{

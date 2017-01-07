@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper;
+import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCursor;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
@@ -181,6 +182,18 @@ public class RunManager {
 		}else{
 			return -1;
 		}
+	}
+	
+	public LocationData queryLatestLocationDataByRunId(long runId){
+		
+		LocationData locationData = null;
+		LocationDataCursor locaDataCursor = 
+				mDatabaseHelper.queryLatestLocationDataByRunId(runId);
+		if(locaDataCursor.moveToNext()){
+			locationData = locaDataCursor.getLocationData();
+		}
+		locaDataCursor.close();
+		return locationData;
 	}
 	
 }
