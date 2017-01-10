@@ -9,6 +9,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +23,8 @@ import android.widget.Toast;
 import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
+import com.bignerdranch.android.runtracker.loader.LastLocationDataLoader;
+import com.bignerdranch.android.runtracker.loader.RunLoader;
 import com.bignerdranch.android.runtracker.manager.RunManager;
 import com.bignerdranch.android.runtracker.receiver.LocationReceiver;
 
@@ -29,6 +33,10 @@ public class RunFragment extends Fragment {
 	private static final String TAG = "RunFragment";
 
 	private static final String ARG_RUN_ID = "RUN_ID";
+	
+	private static final int LOADER_LOAD_RUN = 1;
+	
+	private static final int LOADER_LOAD_LOAST_LOCATION_DATA = 2;
 
     private Button mStartButton, mStopButton;
     private TextView mTVCurrentRunStatus,mStartedTextView, mLatitudeTextView, 
@@ -65,6 +73,57 @@ public class RunFragment extends Fragment {
     		}
     	};
     };
+    
+    private LoaderCallbacks<Run> mRunLoaderCallbacks = 
+    		new LoaderCallbacks<Run>() {
+
+				@Override
+				public Loader<Run> onCreateLoader(int id, Bundle args) {
+					
+					long runId = args.getLong(ARG_RUN_ID, -1);
+					return new RunLoader(getActivity(), runId);
+				}
+
+				@Override
+				public void onLoadFinished(Loader<Run> loader, Run run) {
+
+					mRun = run;
+					checkIsTrackingCurrentRun();
+					updateButtonUI();
+					updateUI();
+				}
+
+				@Override
+				public void onLoaderReset(Loader<Run> loader) {
+
+					//do nothing
+				}
+			};
+			
+	private LoaderCallbacks<LocationData> mLastLocationDataLoaderCallbacks = 
+			new LoaderCallbacks<LocationData>() {
+
+				@Override
+				public Loader<LocationData> onCreateLoader(int id, Bundle args) {
+					
+					long runId = args.getLong(ARG_RUN_ID, -1);
+					return new LastLocationDataLoader(getActivity(), runId);
+				}
+
+				@Override
+				public void onLoadFinished(Loader<LocationData> loader,
+						LocationData data) {
+					
+					mLastLocationData = data;
+					updateUI();
+				}
+
+				@Override
+				public void onLoaderReset(Loader<LocationData> arg0) {
+
+					//do nothing
+				}
+			};
 	
 	public static RunFragment newInstance(long runId){
 		
@@ -88,11 +147,11 @@ public class RunFragment extends Fragment {
 			Log.i(TAG, "get runId:"+runId);
 			
 			if(runId != -1){
-				Run run = mRunManager.queryRunById(runId);
-				mRun = run;
 				
-				LocationData locationData = mRunManager.queryLatestLocationDataByRunId(runId);
-				mLastLocationData = locationData;
+				getLoaderManager().initLoader(LOADER_LOAD_RUN, args, mRunLoaderCallbacks);
+				
+				getLoaderManager().initLoader(LOADER_LOAD_LOAST_LOCATION_DATA, args
+						, mLastLocationDataLoaderCallbacks);
 			}
 		}
 		
