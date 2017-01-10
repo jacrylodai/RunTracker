@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -23,6 +25,7 @@ import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.activity.RunActivity;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.Run;
+import com.bignerdranch.android.runtracker.loader.SQLiteCursorLoader;
 import com.bignerdranch.android.runtracker.manager.RunManager;
 
 public class RunListFragment extends ListFragment {
@@ -30,21 +33,40 @@ public class RunListFragment extends ListFragment {
 	private static final String TAG = "RunListFragment";
 	
 	private static final int REQUEST_CODE_NEW_RUN = 1;
-
-	private RunCursor mRunCursor;
 	
-	private RunCursorAdapter mAdapter;
+	private static final int LOADER_LOAD_RUN_LIST = 1;
+	
+	private LoaderCallbacks<Cursor> mRunListLoaderCallbacks = 
+			new LoaderCallbacks<Cursor>() {
+
+				@Override
+				public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+					return new RunListCursorLoader(getActivity());
+				}
+
+				@Override
+				public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+
+					RunCursorAdapter adapter = 
+							new RunCursorAdapter(getActivity(), (RunCursor)cursor);
+					setListAdapter(adapter);
+				}
+
+				@Override
+				public void onLoaderReset(Loader<Cursor> cursor) {
+
+					setListAdapter(null);
+				}
+			};
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		
+
+		super.onCreate(savedInstanceState);		
 		setHasOptionsMenu(true);
 		
-		super.onCreate(savedInstanceState);		
-		mRunCursor = RunManager.getInstance(getActivity()).queryRunList();
-		
-		mAdapter = new RunCursorAdapter(getActivity(), mRunCursor);
-		setListAdapter(mAdapter);
+		getLoaderManager().initLoader(LOADER_LOAD_RUN_LIST, null, mRunListLoaderCallbacks);
 	}
 	
 	@Override
@@ -88,20 +110,13 @@ public class RunListFragment extends ListFragment {
 		case REQUEST_CODE_NEW_RUN:
 			
 			Log.i(TAG, "requery");
-			mRunCursor.requery();
-			mAdapter.notifyDataSetChanged();
+			getLoaderManager().restartLoader(LOADER_LOAD_RUN_LIST
+					, null, mRunListLoaderCallbacks);
 			break;
 
 		default:
 			break;
 		}
-	}
-		
-	@Override
-	public void onDestroy() {
-		
-		mRunCursor.close();
-		super.onDestroy();
 	}
 	
 	private class RunCursorAdapter extends CursorAdapter{
@@ -135,6 +150,19 @@ public class RunListFragment extends ListFragment {
 			View view = 
 					layoutInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
 			return view;
+		}
+		
+	}
+	
+	private static class RunListCursorLoader extends SQLiteCursorLoader{
+
+		public RunListCursorLoader(Context context) {
+			super(context);
+		}
+
+		@Override
+		protected Cursor loadCursor() {
+			return RunManager.getInstance(getContext()).queryRunList();
 		}
 		
 	}
