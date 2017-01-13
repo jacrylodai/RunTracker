@@ -4,6 +4,7 @@ import java.util.Date;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bignerdranch.android.runtracker.R;
+import com.bignerdranch.android.runtracker.activity.RunMapActivity;
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.loader.LastLocationDataLoader;
@@ -38,7 +40,7 @@ public class RunFragment extends Fragment {
 	
 	private static final int LOADER_LOAD_LOAST_LOCATION_DATA = 2;
 
-    private Button mStartButton, mStopButton;
+    private Button mStartButton, mStopButton,mButtonShowMap;
     private TextView mTVCurrentRunStatus,mStartedTextView, mLatitudeTextView, 
         mLongitudeTextView, mAltitudeTextView, mDurationTextView;
     
@@ -115,6 +117,8 @@ public class RunFragment extends Fragment {
 						LocationData data) {
 					
 					mLastLocationData = data;
+					checkIsTrackingCurrentRun();
+					updateButtonUI();
 					updateUI();
 				}
 
@@ -203,6 +207,21 @@ public class RunFragment extends Fragment {
 			}
 		});
         
+        mButtonShowMap = (Button) view.findViewById(R.id.button_show_map);
+        mButtonShowMap.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				if(mRun != null && mLastLocationData != null){
+					long runId = mRun.getRunId();
+					Intent intent = new Intent(getActivity(),RunMapActivity.class);
+					intent.putExtra(RunMapActivity.ARG_RUN_ID, runId);
+					startActivity(intent);
+				}
+			}
+		});
+        
         updateButtonUI();
         updateUI();
         
@@ -287,6 +306,12 @@ public class RunFragment extends Fragment {
 		}else{
 			mStartButton.setEnabled(true);
 			mStopButton.setEnabled(false);
+		}
+
+		if(mRun != null && mLastLocationData != null){
+			mButtonShowMap.setEnabled(true);
+		}else{
+			mButtonShowMap.setEnabled(false);
 		}
 	}
 	

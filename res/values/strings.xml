@@ -20,4 +20,6 @@
     <string name="string_tracking_current_run">You are tracking current run!</string>
     <string name="string_not_tracking_current_run">You are not tracking current run!</string>
     
+    <string name="show_map">Show Map</string>
+    
 </resources>
