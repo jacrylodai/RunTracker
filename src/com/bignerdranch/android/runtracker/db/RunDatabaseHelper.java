@@ -128,6 +128,20 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 		
 		return new LocationDataCursor(cursor);
 	}
+	
+	public LocationDataCursor queryLocationDataListByRunId(long runId){
+		
+		Cursor cursor = getReadableDatabase().query(
+				TABLE_LOCATION_DATA_NAME
+				, null
+				, COLUMN_LOCATION_DATA_FK_RUN_ID + "=?"
+				, new String[]{ String.valueOf(runId) }
+				, null
+				, null
+				, COLUMN_LOCATION_DATA_TIMESTAMP + " asc");
+		
+		return new LocationDataCursor(cursor);
+	}
 
 	public static class RunCursor extends CursorWrapper{
 

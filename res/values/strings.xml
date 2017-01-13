@@ -22,4 +22,7 @@
     
     <string name="show_map">Show Map</string>
     
+    <!-- RunMapActivity -->
+    <string name="no_location_data">There is no location data!</string>
+    
 </resources>

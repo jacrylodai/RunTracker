@@ -196,4 +196,9 @@ public class RunManager {
 		return locationData;
 	}
 	
+	public LocationDataCursor queryLocationDataListByRunId(long runId){
+		
+		return mDatabaseHelper.queryLocationDataListByRunId(runId);
+	}
+	
 }

@@ -215,6 +215,10 @@ public class RunFragment extends Fragment {
 				
 				if(mRun != null && mLastLocationData != null){
 					long runId = mRun.getRunId();
+					if(-1 == runId){
+						Log.e(TAG, "runId have no value");
+						return;
+					}
 					Intent intent = new Intent(getActivity(),RunMapActivity.class);
 					intent.putExtra(RunMapActivity.ARG_RUN_ID, runId);
 					startActivity(intent);

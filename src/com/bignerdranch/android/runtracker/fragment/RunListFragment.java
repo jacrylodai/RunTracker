@@ -25,8 +25,7 @@ import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.activity.RunActivity;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.Run;
-import com.bignerdranch.android.runtracker.loader.SQLiteCursorLoader;
-import com.bignerdranch.android.runtracker.manager.RunManager;
+import com.bignerdranch.android.runtracker.loader.RunListCursorLoader;
 
 public class RunListFragment extends ListFragment {
 	
@@ -54,7 +53,7 @@ public class RunListFragment extends ListFragment {
 				}
 
 				@Override
-				public void onLoaderReset(Loader<Cursor> cursor) {
+				public void onLoaderReset(Loader<Cursor> loader) {
 
 					setListAdapter(null);
 				}
@@ -150,19 +149,6 @@ public class RunListFragment extends ListFragment {
 			View view = 
 					layoutInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
 			return view;
-		}
-		
-	}
-	
-	private static class RunListCursorLoader extends SQLiteCursorLoader{
-
-		public RunListCursorLoader(Context context) {
-			super(context);
-		}
-
-		@Override
-		protected Cursor loadCursor() {
-			return RunManager.getInstance(getContext()).queryRunList();
 		}
 		
 	}
