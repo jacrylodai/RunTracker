@@ -15,6 +15,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.util.Log;
@@ -94,6 +95,8 @@ public class RunMapFragment extends SupportMapFragment{
 	private BitmapDescriptor mCustomMarker,mPointMarker;
 	
 	private LatLng startPointLL,destPointLL;
+	
+	private Handler mHandler = new Handler();
 	
 	private LoaderCallbacks<Cursor> mLocationDataListLoaderCallbacks = 
 			new LoaderCallbacks<Cursor>() {
@@ -453,12 +456,18 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	private void locateToPosition(LatLng latLng){
 		
-		LatLng newLatLng = new LatLng(latLng.latitude, latLng.longitude);
-		MapStatusUpdate locationUpdate = MapStatusUpdateFactory.newLatLng(newLatLng);
-		mBaiduMap.setMapStatus(locationUpdate);
+		MapStatusUpdate locationUpdate = MapStatusUpdateFactory.newLatLng(latLng);
+		mBaiduMap.animateMapStatus(locationUpdate,600);
 		
-		MapStatusUpdate zoomUpdate = MapStatusUpdateFactory.zoomTo(DEFAULT_MAP_ZOOM_LEVEL);
-		mBaiduMap.animateMapStatus(zoomUpdate);
+		mHandler.postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+
+				MapStatusUpdate zoomUpdate = MapStatusUpdateFactory.zoomTo(DEFAULT_MAP_ZOOM_LEVEL);
+				mBaiduMap.animateMapStatus(zoomUpdate);				
+			}
+		}, 600);
 	}
 	
 	/**
@@ -562,11 +571,7 @@ public class RunMapFragment extends SupportMapFragment{
 				hasLocateToMyLocation = true;
 				LatLng latLng = new LatLng(bdLocation.getLatitude(),bdLocation.getLongitude());
 				
-				MapStatusUpdate locationUpdate = MapStatusUpdateFactory.newLatLng(latLng);
-				mBaiduMap.setMapStatus(locationUpdate);
-				
-				MapStatusUpdate zoomUpdate = MapStatusUpdateFactory.zoomTo(DEFAULT_MAP_ZOOM_LEVEL);
-				mBaiduMap.animateMapStatus(zoomUpdate);
+				locateToPosition(latLng);
 			}
 
 			mMyBDLocation = bdLocation;
