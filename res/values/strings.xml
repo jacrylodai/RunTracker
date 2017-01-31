@@ -26,7 +26,6 @@
     <string name="elapsed_time">Elapsed Time:</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>    
-    <string name="no_location_data">There is no location data!</string>    
     <string name="show_map">Show Map</string>
     <string name="string_tracking_current_run">You are tracking current run!</string>
     <string name="string_not_tracking_current_run">You are not tracking current run!</string>
@@ -49,6 +48,8 @@
     <string name="trip_point">Trip Point %d</string>
     <string name="start_point">Start Point</string>
     <string name="dest_point">Dest Point</string>
+    <string name="no_location_data">There is no location data!</string>    
+    <string name="need_more_location_data">There is only one location data,need more!</string>    
     
     <!-- ConfigActivity -->
     <!-- layout -->

@@ -3,8 +3,6 @@ package com.bignerdranch.android.runtracker.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.util.LangUtils;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
@@ -19,6 +17,7 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,8 +48,10 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.map.SupportMapFragment;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.LatLngBounds;
 import com.baidu.mapapi.utils.CoordinateConverter;
 import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCursor;
 import com.bignerdranch.android.runtracker.domain.LocationData;
@@ -70,7 +71,12 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	private static final int LOADER_LOAD_LOCATION_DATA_LIST = 1;
 	
-	private static final float DEFAULT_MAP_ZOOM_LEVEL = 15f;
+	private static final float DEFAULT_MAP_ZOOM_LEVEL = 17f;
+	
+	//ms
+	private static final int DEFAULT_MAP_UPDATE_ANIMATION_TIME = 600;
+	
+	private static final double MIN_TRIP_DISTANCE = 80;
 	
 	private BaiduMap mBaiduMap;
 	
@@ -92,7 +98,7 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	private double mZDegree;
 
-	private BitmapDescriptor mCustomMarker,mPointMarker;
+	private BitmapDescriptor mCustomMarker,mPointMarker,mStartPointMarker,mEndPointMarker;
 	
 	private LatLng startPointLL,destPointLL;
 	
@@ -200,6 +206,8 @@ public class RunMapFragment extends SupportMapFragment{
 		
 		mCustomMarker.recycle();
 		mPointMarker.recycle();
+		mStartPointMarker.recycle();
+		mEndPointMarker.recycle();
 		
 		super.onDestroy();
 	}
@@ -312,23 +320,31 @@ public class RunMapFragment extends SupportMapFragment{
 		mCustomMarker = BitmapDescriptorFactory
 				.fromResource(R.drawable.navi_map_gps_locked);
 		mPointMarker = BitmapDescriptorFactory
-				.fromResource(R.drawable.maker);
-		
+				.fromResource(R.drawable.trip_marker);
+		mStartPointMarker = BitmapDescriptorFactory.fromResource(R.drawable.start_point_marker);
+		mEndPointMarker = BitmapDescriptorFactory.fromResource(R.drawable.end_point_marker);
 	}
 	
 	private void initialMap(){
 		
 		startPointLL = null;
 		destPointLL = null;
-		
-		Bundle args = getArguments();
-		long runId = args.getLong(ARG_RUN_ID, -1);
-		if(runId != -1){
-			getLoaderManager().initLoader(LOADER_LOAD_LOCATION_DATA_LIST, args
-					, mLocationDataListLoaderCallbacks);
-		}else{
-			Log.e(TAG, "runId have no value");
-		}
+				
+		mBaiduMap.setOnMapLoadedCallback(new BaiduMap.OnMapLoadedCallback() {
+			
+			@Override
+			public void onMapLoaded() {
+
+				Bundle args = getArguments();
+				long runId = args.getLong(ARG_RUN_ID, -1);
+				if(runId != -1){
+					getLoaderManager().initLoader(LOADER_LOAD_LOCATION_DATA_LIST, args
+							, mLocationDataListLoaderCallbacks);
+				}else{
+					Log.e(TAG, "runId have no value");
+				}
+			}
+		});
 		
 		mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
 			
@@ -457,17 +473,24 @@ public class RunMapFragment extends SupportMapFragment{
 	private void locateToPosition(LatLng latLng){
 		
 		MapStatusUpdate locationUpdate = MapStatusUpdateFactory.newLatLng(latLng);
-		mBaiduMap.animateMapStatus(locationUpdate,600);
+		mBaiduMap.animateMapStatus(locationUpdate,DEFAULT_MAP_UPDATE_ANIMATION_TIME);
+		
+	}
+	
+	private void locateToPositionAndZoomTo(LatLng latLng,final float zoomLevel){
+		
+		MapStatusUpdate locationUpdate = MapStatusUpdateFactory.newLatLng(latLng);
+		mBaiduMap.animateMapStatus(locationUpdate,DEFAULT_MAP_UPDATE_ANIMATION_TIME);
 		
 		mHandler.postDelayed(new Runnable() {
 			
 			@Override
 			public void run() {
 
-				MapStatusUpdate zoomUpdate = MapStatusUpdateFactory.zoomTo(DEFAULT_MAP_ZOOM_LEVEL);
+				MapStatusUpdate zoomUpdate = MapStatusUpdateFactory.zoomTo(zoomLevel);
 				mBaiduMap.animateMapStatus(zoomUpdate);				
 			}
-		}, 600);
+		}, DEFAULT_MAP_UPDATE_ANIMATION_TIME);
 	}
 	
 	/**
@@ -501,7 +524,6 @@ public class RunMapFragment extends SupportMapFragment{
 		List<LatLng> pointList = new ArrayList<LatLng>();
 		
 		mLocationDataCursor.moveToFirst();
-		int currentIndex = 1;
 		while(!mLocationDataCursor.isAfterLast()){
 			LocationData locationData = mLocationDataCursor.getLocationData();
 			
@@ -515,51 +537,103 @@ public class RunMapFragment extends SupportMapFragment{
 			converter.coord(sourceLatLng);  
 			LatLng desLatLng = converter.convert();
 			
-			if(mLocationDataCursor.isFirst()){
-				startPointLL = desLatLng;
-			}
-			if(mLocationDataCursor.isLast()){
-				destPointLL = desLatLng;
-			}
-			
 			pointList.add(desLatLng);
+
+			mLocationDataCursor.moveToNext();
+		}
+		
+		
+		if(pointList.size() == 0){
+			Toast.makeText(getActivity(),R.string.no_location_data
+					,Toast.LENGTH_SHORT).show();
+			return;
+		}else
+			if(pointList.size() == 1){
+
+				Toast.makeText(getActivity(),R.string.need_more_location_data
+						,Toast.LENGTH_SHORT).show();
+				return;
+			}
+
+		List<LatLng> finalPointList = new ArrayList<LatLng>();
+		LatLng lastLL = pointList.get(0);
+		finalPointList.add(lastLL);
+		for(int i=1;i<pointList.size();i++){
+			LatLng pointLL = pointList.get(i);
+			double distance = DistanceUtil.getDistance(lastLL, pointLL);
+			Log.i(TAG, "i:"+i+"-- distance:"+distance);
+						
+			if(distance > MIN_TRIP_DISTANCE){
+				lastLL = pointLL;
+				finalPointList.add(lastLL);
+			}else{
+				
+				if(i == pointList.size()-1){
+					lastLL = pointLL;
+					finalPointList.add(lastLL);
+				}
+			}
+		}
+			
+		startPointLL = finalPointList.get(0);
+		destPointLL = finalPointList.get(finalPointList.size()-1);
+		
+		
+		
+		//用线把旅程点连接起来
+		OverlayOptions ooPolyline = new PolylineOptions().width(6)
+				.color(0xFF41A6F0).points(finalPointList);
+		mBaiduMap.addOverlay(ooPolyline);
+		
+		//在地图上标注覆盖物
+		for(int i=0;i<finalPointList.size();i++){
+
+			LatLng pointLL = finalPointList.get(i);
 			
 			//添加覆盖物
 			MarkerOptions markerOptions =
 					new MarkerOptions()
-						.position(desLatLng)
-						.icon(mPointMarker)
+						.position(pointLL)
 						.zIndex(5);
+			
+			if(0 == i){
+				markerOptions.icon(mStartPointMarker);
+			}else
+				if(finalPointList.size()-1 == i){
+					markerOptions.icon(mEndPointMarker);
+				}else{
+					markerOptions.icon(mPointMarker);
+				}
+			
 			Marker marker = (Marker) mBaiduMap.addOverlay(markerOptions);
 			
 			//取得覆盖物信息
+			int currentIndex = i+1;
 			String markerInfo = String.format(getString(R.string.trip_point), currentIndex);
-			if(mLocationDataCursor.isFirst()){
+			if(0 == i){
 				markerInfo = getString(R.string.start_point);
 			}else
-				if(mLocationDataCursor.isLast()){
+				if(finalPointList.size()-1 == i){
 					markerInfo = getString(R.string.dest_point);
 				}
 			
 			Bundle args = new Bundle();
 			args.putString(ARG_MARKER_INFO, markerInfo);
 			
-			marker.setExtraInfo(args);
-			
-			mLocationDataCursor.moveToNext();
-			
-			currentIndex++;
+			marker.setExtraInfo(args);			
 		}
 		
-		OverlayOptions ooPolyline = new PolylineOptions().width(6)
-				.color(0xFF41A6F0).points(pointList);
-		mBaiduMap.addOverlay(ooPolyline);
-		
-		if(startPointLL != null){
-			locateToPosition(startPointLL);
-		}else{
-			Toast.makeText(getActivity(), R.string.no_location_data, Toast.LENGTH_SHORT).show();
+		//根据所有的旅程点设置地图的边界
+		LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+		for(LatLng pointLL:finalPointList){
+			boundsBuilder.include(pointLL);
 		}
+		LatLngBounds bounds = boundsBuilder.build();
+		
+		MapStatusUpdate update = MapStatusUpdateFactory.newLatLngBounds(
+				bounds);
+		mBaiduMap.animateMapStatus(update,DEFAULT_MAP_UPDATE_ANIMATION_TIME);
+		
 	}
 	
 	private class MyLocationListener implements BDLocationListener{
@@ -571,7 +645,7 @@ public class RunMapFragment extends SupportMapFragment{
 				hasLocateToMyLocation = true;
 				LatLng latLng = new LatLng(bdLocation.getLatitude(),bdLocation.getLongitude());
 				
-				locateToPosition(latLng);
+				locateToPositionAndZoomTo(latLng, DEFAULT_MAP_ZOOM_LEVEL);
 			}
 
 			mMyBDLocation = bdLocation;
