@@ -9,14 +9,23 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.map.SupportMapFragment;
@@ -39,6 +48,14 @@ public class RunMapFragment extends SupportMapFragment{
 	private BaiduMap mBaiduMap;
 	
 	private LocationDataCursor mLocationDataCursor;
+	
+	private LocationClient mLocationClient;
+	
+	private MyLocationListener mMyLocationListener;
+	
+	private boolean hasLocateToMyLocation,isTrackingMyLocation;
+	
+	private BDLocation mMyBDLocation;
 	
 	private LoaderCallbacks<Cursor> mLocationDataListLoaderCallbacks = 
 			new LoaderCallbacks<Cursor>() {
@@ -79,6 +96,11 @@ public class RunMapFragment extends SupportMapFragment{
 		super.onCreate(savedInstanceState);
 		SDKInitializer.initialize(getActivity().getApplicationContext());
 		
+		setHasOptionsMenu(true);
+		
+		isTrackingMyLocation = false;
+		initialMyLocation();
+		
 		Bundle args = getArguments();
 		long runId = args.getLong(ARG_RUN_ID, -1);
 		if(runId != -1){
@@ -96,6 +118,119 @@ public class RunMapFragment extends SupportMapFragment{
 		View view = super.onCreateView(inflater, parent, savedInstanceState);
 		mBaiduMap = getBaiduMap();
 		return view;
+	}
+	
+	@Override
+	public void onStart() {
+		
+		super.onStart();
+		if(isTrackingMyLocation){
+			mBaiduMap.setMyLocationEnabled(true);
+			mLocationClient.registerLocationListener(mMyLocationListener);
+			mLocationClient.start();
+		}
+	}
+	
+	@Override
+	public void onStop() {
+		
+		if(isTrackingMyLocation){
+			mLocationClient.stop();
+			mLocationClient.unRegisterLocationListener(mMyLocationListener);
+			mBaiduMap.setMyLocationEnabled(false);
+		}
+		super.onStop();
+	}
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.run_map_options, menu);
+	}	
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()) {
+		
+		case R.id.menu_item_normal_map:
+			mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
+			return true;
+			
+		case R.id.menu_item_satellite_map:
+			mBaiduMap.setMapType(BaiduMap.MAP_TYPE_SATELLITE);
+			return true;
+		
+		case R.id.menu_item_show_my_location:
+			showMyLocation();
+			return true;
+			
+		case R.id.menu_item_do_not_show_my_location:
+			
+			doNotShowMyLocation();
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	private void initialMyLocation() {
+		
+		mLocationClient = new LocationClient(getActivity());
+		mMyLocationListener = new MyLocationListener();
+		
+		LocationClientOption option = new LocationClientOption();
+		option.setOpenGps(true);
+		option.setCoorType("bd09ll");
+		option.setScanSpan(2*1000);
+		
+		mLocationClient.setLocOption(option);
+	}
+	
+	private void showMyLocation(){
+		
+		isTrackingMyLocation = true;
+		
+		hasLocateToMyLocation = false;		
+		
+		mBaiduMap.setMyLocationEnabled(true);
+		mLocationClient.registerLocationListener(mMyLocationListener);
+		mLocationClient.start();
+	}
+	
+	private void doNotShowMyLocation(){
+		
+		isTrackingMyLocation = false;
+		
+		mLocationClient.stop();
+		mLocationClient.unRegisterLocationListener(mMyLocationListener);
+		mBaiduMap.setMyLocationEnabled(false);
+	}
+	
+	private void locateToPosition(LatLng latLng){
+		
+		MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(latLng);
+		mBaiduMap.animateMapStatus(update);
+	}
+	
+	/**
+	 * 更新我的位置
+	 * 因为使用了方向传感器，需要频繁更新我的位置
+	 */
+	private void updateMyLocation(){
+		
+		if(mMyBDLocation != null){
+			MyLocationData myLocationData = 
+					new MyLocationData.Builder()
+						.accuracy(mMyBDLocation.getRadius())
+						.direction((float)0)
+						.latitude(mMyBDLocation.getLatitude())
+						.longitude(mMyBDLocation.getLongitude())
+						.build();
+			
+			mBaiduMap.setMyLocationData(myLocationData);
+		}
 	}
 	
 	private void updateMap(){
@@ -139,6 +274,29 @@ public class RunMapFragment extends SupportMapFragment{
 		}else{
 			Toast.makeText(getActivity(), R.string.no_location_data, Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	private class MyLocationListener implements BDLocationListener{
+
+		@Override
+		public void onReceiveLocation(BDLocation bdLocation) {
+
+			if(hasLocateToMyLocation == false){
+				hasLocateToMyLocation = true;
+				LatLng latLng = new LatLng(bdLocation.getLatitude(),bdLocation.getLongitude());
+				locateToPosition(latLng);
+			}
+
+			mMyBDLocation = bdLocation;
+			
+			updateMyLocation();
+		}
+
+		@Override
+		public void onReceivePoi(BDLocation arg0) {
+			
+		}
+		
 	}
 	
 }

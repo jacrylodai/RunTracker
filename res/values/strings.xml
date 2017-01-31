@@ -16,7 +16,7 @@
     <string name="new_run">New Run</string>
     <string name="config">Config</string>
     
-    <!-- RunMapActivity -->
+    <!-- RunActivity -->
     <!-- layout -->
     <string name="current_run_status">Run Status:</string>
     <string name="started">Started:</string>
@@ -30,6 +30,16 @@
     <string name="show_map">Show Map</string>
     <string name="string_tracking_current_run">You are tracking current run!</string>
     <string name="string_not_tracking_current_run">You are not tracking current run!</string>
+    
+    <!-- RunMapActivity -->
+    <!-- layout -->
+    <!-- menu -->
+    <string name="normal_map">Normal Map</string>
+    <string name="satellite_map">Satellite Map</string>
+    <string name="show_my_location">Show my location</string>
+    <string name="do_not_show_my_location">Don\'t Show my location</string>
+    <!-- back -->
+    <string name="cant_get_sensor">Can\'t get Sensor! Unable to show your direction</string>
     
     <!-- ConfigActivity -->
     <!-- layout -->
