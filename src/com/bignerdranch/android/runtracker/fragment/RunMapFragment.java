@@ -3,9 +3,12 @@ package com.bignerdranch.android.runtracker.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.util.LangUtils;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -21,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
@@ -31,14 +35,18 @@ import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
+import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.map.SupportMapFragment;
-import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.CoordinateConverter;
 import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
@@ -57,7 +65,11 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	private static final String ARG_RUN_ID = "runId";
 	
+	private static final String ARG_MARKER_INFO = "markerInfo";
+	
 	private static final int LOADER_LOAD_LOCATION_DATA_LIST = 1;
+	
+	private static final float DEFAULT_MAP_ZOOM_LEVEL = 15f;
 	
 	private BaiduMap mBaiduMap;
 	
@@ -79,7 +91,9 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	private double mZDegree;
 
-	private BitmapDescriptor mCustomMarker;
+	private BitmapDescriptor mCustomMarker,mPointMarker;
+	
+	private LatLng startPointLL,destPointLL;
 	
 	private LoaderCallbacks<Cursor> mLocationDataListLoaderCallbacks = 
 			new LoaderCallbacks<Cursor>() {
@@ -123,18 +137,10 @@ public class RunMapFragment extends SupportMapFragment{
 		setHasOptionsMenu(true);
 		
 		isTrackingMyLocation = false;
-		initialMap();
+		initialResource();
 		initialMyLocation();
 		initialSensor();
-		
-		Bundle args = getArguments();
-		long runId = args.getLong(ARG_RUN_ID, -1);
-		if(runId != -1){
-			getLoaderManager().initLoader(LOADER_LOAD_LOCATION_DATA_LIST, args
-					, mLocationDataListLoaderCallbacks);
-		}else{
-			Log.e(TAG, "runId have no value");
-		}
+				
 	}
 	
 	@Override
@@ -143,6 +149,9 @@ public class RunMapFragment extends SupportMapFragment{
 		
 		View view = super.onCreateView(inflater, parent, savedInstanceState);
 		mBaiduMap = getBaiduMap();
+		
+		initialMap();
+		
 		return view;
 	}
 	
@@ -184,6 +193,15 @@ public class RunMapFragment extends SupportMapFragment{
 	}
 	
 	@Override
+	public void onDestroy() {
+		
+		mCustomMarker.recycle();
+		mPointMarker.recycle();
+		
+		super.onDestroy();
+	}
+	
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.run_map_options, menu);
@@ -194,6 +212,22 @@ public class RunMapFragment extends SupportMapFragment{
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
 		switch (item.getItemId()) {
+		
+		case R.id.menu_item_locate_to_my_location:
+			
+			if(mMyBDLocation != null){
+				LatLng myLL = new LatLng(mMyBDLocation.getLatitude(), mMyBDLocation.getLongitude());
+				locateToPosition(myLL);
+			}
+			return true;
+		
+		case R.id.menu_item_locate_to_start_point:
+			locateToPosition(startPointLL);
+			return true;
+			
+		case R.id.menu_item_locate_to_dest_point:
+			locateToPosition(destPointLL);
+			return true;
 		
 		case R.id.menu_item_normal_map:
 			mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
@@ -252,22 +286,96 @@ public class RunMapFragment extends SupportMapFragment{
 		MenuItem locationModeNormal = menu.findItem(R.id.menu_item_location_mode_normal);
 		MenuItem locationModeFollowing = menu.findItem(R.id.menu_item_location_mode_following);
 		MenuItem locationModeCompass = menu.findItem(R.id.menu_item_location_mode_compass);
+		
+		MenuItem locateToMyLocation = menu.findItem(R.id.menu_item_locate_to_my_location);
+		
 		if(isTrackingMyLocation){
 			locationModeNormal.setEnabled(true);
 			locationModeFollowing.setEnabled(true);
 			locationModeCompass.setEnabled(true);
+			
+			locateToMyLocation.setEnabled(true);
 		}else{
 			locationModeNormal.setEnabled(false);
 			locationModeFollowing.setEnabled(false);
 			locationModeCompass.setEnabled(false);
+			
+			locateToMyLocation.setEnabled(false);
 		}
 	}
 	
-	private void initialMap(){
+	private void initialResource(){
 
 		mCustomMarker = BitmapDescriptorFactory
 				.fromResource(R.drawable.navi_map_gps_locked);
-
+		mPointMarker = BitmapDescriptorFactory
+				.fromResource(R.drawable.maker);
+		
+	}
+	
+	private void initialMap(){
+		
+		startPointLL = null;
+		destPointLL = null;
+		
+		Bundle args = getArguments();
+		long runId = args.getLong(ARG_RUN_ID, -1);
+		if(runId != -1){
+			getLoaderManager().initLoader(LOADER_LOAD_LOCATION_DATA_LIST, args
+					, mLocationDataListLoaderCallbacks);
+		}else{
+			Log.e(TAG, "runId have no value");
+		}
+		
+		mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+			
+			@Override
+			public boolean onMarkerClick(Marker marker) {
+				
+				final LatLng markerPoint = marker.getPosition();
+				Point p = mBaiduMap.getProjection().toScreenLocation(markerPoint);
+				p.y -= 57;
+				LatLng infoPoint = mBaiduMap.getProjection().fromScreenLocation(p);
+				
+				LayoutInflater layoutInflater = 
+						(LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				TextView tvInfoWindowInfo = (TextView) layoutInflater.inflate(R.layout.view_map_info_window, null);
+				
+				Bundle args = marker.getExtraInfo();
+				String markerInfo = args.getString(ARG_MARKER_INFO);
+				
+				tvInfoWindowInfo.setText(markerInfo);
+				
+				InfoWindow infoWindow = new InfoWindow(tvInfoWindowInfo, infoPoint
+						, new InfoWindow.OnInfoWindowClickListener() {
+					
+					@Override
+					public void onInfoWindowClick() {
+						
+						mBaiduMap.hideInfoWindow();
+					}
+				});
+				
+				mBaiduMap.showInfoWindow(infoWindow);
+				
+				return true;
+			}
+		});
+		
+		mBaiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
+			
+			@Override
+			public boolean onMapPoiClick(MapPoi arg0) {
+				return false;
+			}
+			
+			@Override
+			public void onMapClick(LatLng arg0) {
+				
+				mBaiduMap.hideInfoWindow();
+			}
+		});
+		
 	}
 	
 	private void initialMyLocation() {
@@ -310,7 +418,9 @@ public class RunMapFragment extends SupportMapFragment{
 
 	private void showMyLocation(){
 		
-		hasLocateToMyLocation = false;		
+		hasLocateToMyLocation = false;
+		
+		mMyBDLocation = null;
 		
 		updateMapLocationMode(LocationMode.NORMAL);
 		
@@ -343,8 +453,12 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	private void locateToPosition(LatLng latLng){
 		
-		MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(latLng);
-		mBaiduMap.animateMapStatus(update);
+		LatLng newLatLng = new LatLng(latLng.latitude, latLng.longitude);
+		MapStatusUpdate locationUpdate = MapStatusUpdateFactory.newLatLng(newLatLng);
+		mBaiduMap.setMapStatus(locationUpdate);
+		
+		MapStatusUpdate zoomUpdate = MapStatusUpdateFactory.zoomTo(DEFAULT_MAP_ZOOM_LEVEL);
+		mBaiduMap.animateMapStatus(zoomUpdate);
 	}
 	
 	/**
@@ -377,9 +491,8 @@ public class RunMapFragment extends SupportMapFragment{
 
 		List<LatLng> pointList = new ArrayList<LatLng>();
 		
-		LatLng firstLatLng = null;
-		
 		mLocationDataCursor.moveToFirst();
+		int currentIndex = 1;
 		while(!mLocationDataCursor.isAfterLast()){
 			LocationData locationData = mLocationDataCursor.getLocationData();
 			
@@ -393,24 +506,48 @@ public class RunMapFragment extends SupportMapFragment{
 			converter.coord(sourceLatLng);  
 			LatLng desLatLng = converter.convert();
 			
-			if(firstLatLng == null){
-				firstLatLng = desLatLng;
+			if(mLocationDataCursor.isFirst()){
+				startPointLL = desLatLng;
+			}
+			if(mLocationDataCursor.isLast()){
+				destPointLL = desLatLng;
 			}
 			
 			pointList.add(desLatLng);
+			
+			//添加覆盖物
+			MarkerOptions markerOptions =
+					new MarkerOptions()
+						.position(desLatLng)
+						.icon(mPointMarker)
+						.zIndex(5);
+			Marker marker = (Marker) mBaiduMap.addOverlay(markerOptions);
+			
+			//取得覆盖物信息
+			String markerInfo = String.format(getString(R.string.trip_point), currentIndex);
+			if(mLocationDataCursor.isFirst()){
+				markerInfo = getString(R.string.start_point);
+			}else
+				if(mLocationDataCursor.isLast()){
+					markerInfo = getString(R.string.dest_point);
+				}
+			
+			Bundle args = new Bundle();
+			args.putString(ARG_MARKER_INFO, markerInfo);
+			
+			marker.setExtraInfo(args);
+			
 			mLocationDataCursor.moveToNext();
+			
+			currentIndex++;
 		}
 		
 		OverlayOptions ooPolyline = new PolylineOptions().width(6)
 				.color(0xFF41A6F0).points(pointList);
 		mBaiduMap.addOverlay(ooPolyline);
 		
-		if(firstLatLng != null){
-			MapStatusUpdate mapStatusUpdate = MapStatusUpdateFactory.newLatLng(firstLatLng);
-			mBaiduMap.animateMapStatus(mapStatusUpdate);
-			
-			mapStatusUpdate = MapStatusUpdateFactory.zoomTo(14f);
-			mBaiduMap.animateMapStatus(mapStatusUpdate);
+		if(startPointLL != null){
+			locateToPosition(startPointLL);
 		}else{
 			Toast.makeText(getActivity(), R.string.no_location_data, Toast.LENGTH_SHORT).show();
 		}
@@ -424,7 +561,12 @@ public class RunMapFragment extends SupportMapFragment{
 			if(hasLocateToMyLocation == false){
 				hasLocateToMyLocation = true;
 				LatLng latLng = new LatLng(bdLocation.getLatitude(),bdLocation.getLongitude());
-				locateToPosition(latLng);
+				
+				MapStatusUpdate locationUpdate = MapStatusUpdateFactory.newLatLng(latLng);
+				mBaiduMap.setMapStatus(locationUpdate);
+				
+				MapStatusUpdate zoomUpdate = MapStatusUpdateFactory.zoomTo(DEFAULT_MAP_ZOOM_LEVEL);
+				mBaiduMap.animateMapStatus(zoomUpdate);
 			}
 
 			mMyBDLocation = bdLocation;

@@ -41,8 +41,14 @@
     <string name="location_mode_normal">Location Mode Normal</string>
     <string name="location_mode_following">Location Mode Following</string>
     <string name="location_mode_compass">Location Mode Compass</string>
+    <string name="locate_to_start_point">Locate to Start Point</string>
+    <string name="locate_to_dest_point">Locate to Dest Point</string>
+    <string name="locate_to_my_location">Locate to my location</string>
     <!-- back -->
     <string name="cant_get_sensor">Can\'t get Sensor! Unable to show your direction</string>
+    <string name="trip_point">Trip Point %d</string>
+    <string name="start_point">Start Point</string>
+    <string name="dest_point">Dest Point</string>
     
     <!-- ConfigActivity -->
     <!-- layout -->

@@ -1,24 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
-    <item 
-        android:id="@+id/menu_item_normal_map"
-        android:title="@string/normal_map"
-        android:showAsAction="ifRoom"
-        />
-        
-    <item 
-        android:id="@+id/menu_item_satellite_map"
-        android:title="@string/satellite_map"
-        android:showAsAction="ifRoom"
-        />
-    
     <item
         android:id="@+id/menu_item_show_my_location"
         android:title="@string/show_my_location"
         android:showAsAction="ifRoom"
         />
-
+    
+    <item 
+        android:id="@+id/menu_item_locate_to_my_location"
+        android:title="@string/locate_to_my_location"
+        android:showAsAction="ifRoom"
+        />
+    
+    <item 
+        android:id="@+id/menu_item_locate_to_start_point"
+        android:title="@string/locate_to_start_point"
+        android:showAsAction="ifRoom"
+        />
+    
+    <item 
+        android:id="@+id/menu_item_locate_to_dest_point"
+        android:title="@string/locate_to_dest_point"
+        android:showAsAction="ifRoom"
+        />
+    
     <item
 	    android:id="@+id/menu_item_location_mode_normal"
 	    android:title="@string/location_mode_normal"
@@ -37,4 +43,15 @@
 	    android:showAsAction="ifRoom"
 	    />
     
+    <item 
+        android:id="@+id/menu_item_normal_map"
+        android:title="@string/normal_map"
+        android:showAsAction="ifRoom"
+        />
+        
+    <item 
+        android:id="@+id/menu_item_satellite_map"
+        android:title="@string/satellite_map"
+        android:showAsAction="ifRoom"
+        />
 </menu>
