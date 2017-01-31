@@ -3,12 +3,14 @@ package com.bignerdranch.android.runtracker.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -187,6 +189,7 @@ public class RunMapFragment extends SupportMapFragment{
 		inflater.inflate(R.menu.run_map_options, menu);
 	}	
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
@@ -201,16 +204,62 @@ public class RunMapFragment extends SupportMapFragment{
 			return true;
 		
 		case R.id.menu_item_show_my_location:
-			showMyLocation();
-			return true;
 			
-		case R.id.menu_item_do_not_show_my_location:
+			if(isTrackingMyLocation){
+				isTrackingMyLocation = false;
+				doNotShowMyLocation();
+			}else{
+				isTrackingMyLocation = true;
+				showMyLocation();
+			}
 			
-			doNotShowMyLocation();
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+				getActivity().invalidateOptionsMenu();
+			}
 			return true;
 
+		case R.id.menu_item_location_mode_normal:
+			
+			updateMapLocationMode(LocationMode.NORMAL);
+			return true;
+
+		case R.id.menu_item_location_mode_following:
+			
+			updateMapLocationMode(LocationMode.FOLLOWING);
+			return true;
+
+		case R.id.menu_item_location_mode_compass:
+			
+			updateMapLocationMode(LocationMode.COMPASS);
+			return true;
+			
 		default:
 			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		
+		MenuItem showMyLocationMenuItem = menu.findItem(R.id.menu_item_show_my_location);
+		if(isTrackingMyLocation){
+			showMyLocationMenuItem.setTitle(R.string.do_not_show_my_location);
+		}else{
+			showMyLocationMenuItem.setTitle(R.string.show_my_location);
+		}
+		
+		MenuItem locationModeNormal = menu.findItem(R.id.menu_item_location_mode_normal);
+		MenuItem locationModeFollowing = menu.findItem(R.id.menu_item_location_mode_following);
+		MenuItem locationModeCompass = menu.findItem(R.id.menu_item_location_mode_compass);
+		if(isTrackingMyLocation){
+			locationModeNormal.setEnabled(true);
+			locationModeFollowing.setEnabled(true);
+			locationModeCompass.setEnabled(true);
+		}else{
+			locationModeNormal.setEnabled(false);
+			locationModeFollowing.setEnabled(false);
+			locationModeCompass.setEnabled(false);
 		}
 	}
 	
@@ -261,8 +310,6 @@ public class RunMapFragment extends SupportMapFragment{
 
 	private void showMyLocation(){
 		
-		isTrackingMyLocation = true;
-		
 		hasLocateToMyLocation = false;		
 		
 		updateMapLocationMode(LocationMode.NORMAL);
@@ -284,8 +331,6 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	private void doNotShowMyLocation(){
 		
-		isTrackingMyLocation = false;
-
 		if(mSensorManager != null && mAcceSensor != null && mMagnSensor != null){
 			mSensorManager.unregisterListener(mOriSensorListener);
 		}
