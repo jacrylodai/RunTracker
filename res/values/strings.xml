@@ -5,6 +5,19 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <string name="gps_enabled">GPS Enabled</string>
+    <string name="gps_disabled">GPS Disabled</string>
+    
+    
+    <!-- RunListActivity -->    
+    <!-- layout -->
+    <string name="run_desc">Run record:%s</string>
+    <!-- menu -->
+    <string name="new_run">New Run</string>
+    <string name="config">Config</string>
+    
+    <!-- RunMapActivity -->
+    <!-- layout -->
     <string name="current_run_status">Run Status:</string>
     <string name="started">Started:</string>
     <string name="latitude">Latitude:</string>
@@ -12,17 +25,15 @@
     <string name="altitude">Altitude:</string>
     <string name="elapsed_time">Elapsed Time:</string>
     <string name="start">Start</string>
-    <string name="stop">Stop</string>
-    <string name="gps_enabled">GPS Enabled</string>
-    <string name="gps_disabled">GPS Disabled</string>
-    <string name="run_desc">Run record:%s</string>
-    <string name="new_run">New Run</string>
+    <string name="stop">Stop</string>    
+    <string name="no_location_data">There is no location data!</string>    
+    <string name="show_map">Show Map</string>
     <string name="string_tracking_current_run">You are tracking current run!</string>
     <string name="string_not_tracking_current_run">You are not tracking current run!</string>
     
-    <string name="show_map">Show Map</string>
-    
-    <!-- RunMapActivity -->
-    <string name="no_location_data">There is no location data!</string>
+    <!-- ConfigActivity -->
+    <!-- layout -->
+    <string name="record_time_title">Record time (Second)</string>
+    <string name="record_time_desc">The software will record current location every %d second.</string>
     
 </resources>

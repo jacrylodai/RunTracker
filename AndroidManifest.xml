@@ -64,6 +64,10 @@
             android:screenOrientation="portrait"
             ></activity>
         
+        <activity 
+            android:name="com.bignerdranch.android.runtracker.activity.ConfigActivity"
+            ></activity>
+        
         <receiver 
             android:name="com.bignerdranch.android.runtracker.receiver.TrackingLocationReceiver"
             android:exported="false"

@@ -4,8 +4,15 @@
     <item
         android:id="@+id/menu_item_new_run"
         android:title="@string/new_run"
-        android:icon="@android:drawable/ic_menu_add"
-        android:showAsAction="always"
+        android:icon="@drawable/ic_menu_add"
+        android:showAsAction="ifRoom"
         />
 
+    <item
+        android:id="@+id/menu_item_config"
+        android:title="@string/config"
+        android:icon="@drawable/ic_menu_preferences"
+        android:showAsAction="ifRoom"
+        />
+    
 </menu>

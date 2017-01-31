@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bignerdranch.android.runtracker.R;
+import com.bignerdranch.android.runtracker.activity.ConfigActivity;
 import com.bignerdranch.android.runtracker.activity.RunActivity;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.Run;
@@ -93,6 +94,12 @@ public class RunListFragment extends ListFragment {
 			
 			Intent intent = new Intent(getActivity(),RunActivity.class);
 			startActivityForResult(intent, REQUEST_CODE_NEW_RUN);
+			return true;
+			
+		case R.id.menu_item_config:
+			
+			Intent configIntent = new Intent(getActivity(),ConfigActivity.class);
+			startActivity(configIntent);
 			return true;
 
 		default:

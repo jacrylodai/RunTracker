@@ -15,6 +15,7 @@ import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCurs
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
+import com.bignerdranch.android.runtracker.fragment.ConfigFragment;
 
 public class RunManager {
 	
@@ -24,8 +25,6 @@ public class RunManager {
 			"com.bignerdranch.android.runtracker.ACTION_LOCATION";
 	
 	private static final String TEST_PROVIDER = "TEST_PROVIDER";
-	
-	private static final int MIN_TIME = 1*1000;
 	
 	private static final int MIN_DISTANCE = 2;
 	
@@ -110,7 +109,10 @@ public class RunManager {
 		}
 		
 		PendingIntent intent = getLocationPendingIntent(true);
-		mLocationManager.requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, intent);
+		
+		int recordTime = mPref.getInt(ConfigFragment.PREF_RECORD_TIME, ConfigFragment.DEFAULT_RECORD_TIME);
+		int recordTimeMill = recordTime*1000;
+		mLocationManager.requestLocationUpdates(provider, recordTimeMill, MIN_DISTANCE, intent);
 	}
 
 	private void broadcastLocation(Location lastLocation) {

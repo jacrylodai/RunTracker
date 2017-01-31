@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    
+    <ImageView 
+        android:id="@+id/iv_config_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:padding="12dp"
+        android:src="@drawable/right_arrow"
+        />
+    
+    <TextView 
+        android:id="@+id/tv_config_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/iv_config_arrow"
+        android:layout_centerVertical="true"
+        android:text="Value"
+        />
+    
+    <TextView 
+        android:id="@+id/tv_config_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/tv_config_value"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:text="Title Title Title Title Title Title Title Title Title Title Title "
+        android:textSize="16sp"        
+        />
+    
+    <TextView 
+        android:id="@+id/tv_config_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/tv_config_value"
+        android:layout_below="@id/tv_config_title"
+        android:paddingLeft="8dp"
+        android:paddingBottom="8dp"
+        android:text="Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc "
+        android:textSize="12sp"
+        />
+    
+    <View 
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/tv_config_desc"
+        android:background="#BAE3FF"
+        />
+
+</RelativeLayout>
