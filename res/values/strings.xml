@@ -43,6 +43,7 @@
     <string name="locate_to_start_point">Locate to Start Point</string>
     <string name="locate_to_dest_point">Locate to Dest Point</string>
     <string name="locate_to_my_location">Locate to my location</string>
+    <string name="show_all_trip_point">Show All trip point</string>
     <!-- back -->
     <string name="cant_get_sensor">Can\'t get Sensor! Unable to show your direction</string>
     <string name="trip_point">Trip Point %d</string>

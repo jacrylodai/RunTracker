@@ -76,7 +76,7 @@ public class RunMapFragment extends SupportMapFragment{
 	//ms
 	private static final int DEFAULT_MAP_UPDATE_ANIMATION_TIME = 600;
 	
-	private static final double MIN_TRIP_DISTANCE = 80;
+	private static final double MIN_TRIP_DISTANCE = 40;
 	
 	private BaiduMap mBaiduMap;
 	
@@ -100,7 +100,7 @@ public class RunMapFragment extends SupportMapFragment{
 
 	private BitmapDescriptor mCustomMarker,mPointMarker,mStartPointMarker,mEndPointMarker;
 	
-	private LatLng startPointLL,destPointLL;
+	private List<LatLng> mFinalPointList;
 	
 	private Handler mHandler = new Handler();
 	
@@ -228,16 +228,21 @@ public class RunMapFragment extends SupportMapFragment{
 			
 			if(mMyBDLocation != null){
 				LatLng myLL = new LatLng(mMyBDLocation.getLatitude(), mMyBDLocation.getLongitude());
-				locateToPosition(myLL);
+				locateToPositionAndZoomTo(myLL, DEFAULT_MAP_ZOOM_LEVEL);
 			}
+			return true;
+			
+		case R.id.menu_item_show_all_trip_point:
+			showAllTripPoint();
 			return true;
 		
 		case R.id.menu_item_locate_to_start_point:
-			locateToPosition(startPointLL);
+			locateToPositionAndZoomTo(mFinalPointList.get(0), DEFAULT_MAP_ZOOM_LEVEL);
 			return true;
 			
 		case R.id.menu_item_locate_to_dest_point:
-			locateToPosition(destPointLL);
+			int lastIndex = mFinalPointList.size()-1;
+			locateToPositionAndZoomTo(mFinalPointList.get(lastIndex), DEFAULT_MAP_ZOOM_LEVEL);
 			return true;
 		
 		case R.id.menu_item_normal_map:
@@ -326,9 +331,6 @@ public class RunMapFragment extends SupportMapFragment{
 	}
 	
 	private void initialMap(){
-		
-		startPointLL = null;
-		destPointLL = null;
 				
 		mBaiduMap.setOnMapLoadedCallback(new BaiduMap.OnMapLoadedCallback() {
 			
@@ -555,9 +557,9 @@ public class RunMapFragment extends SupportMapFragment{
 				return;
 			}
 
-		List<LatLng> finalPointList = new ArrayList<LatLng>();
+		mFinalPointList = new ArrayList<LatLng>();
 		LatLng lastLL = pointList.get(0);
-		finalPointList.add(lastLL);
+		mFinalPointList.add(lastLL);
 		for(int i=1;i<pointList.size();i++){
 			LatLng pointLL = pointList.get(i);
 			double distance = DistanceUtil.getDistance(lastLL, pointLL);
@@ -565,30 +567,25 @@ public class RunMapFragment extends SupportMapFragment{
 						
 			if(distance > MIN_TRIP_DISTANCE){
 				lastLL = pointLL;
-				finalPointList.add(lastLL);
+				mFinalPointList.add(lastLL);
 			}else{
 				
 				if(i == pointList.size()-1){
 					lastLL = pointLL;
-					finalPointList.add(lastLL);
+					mFinalPointList.add(lastLL);
 				}
 			}
 		}
-			
-		startPointLL = finalPointList.get(0);
-		destPointLL = finalPointList.get(finalPointList.size()-1);
-		
-		
 		
 		//用线把旅程点连接起来
 		OverlayOptions ooPolyline = new PolylineOptions().width(6)
-				.color(0xFF41A6F0).points(finalPointList);
+				.color(0xFF41A6F0).points(mFinalPointList);
 		mBaiduMap.addOverlay(ooPolyline);
 		
 		//在地图上标注覆盖物
-		for(int i=0;i<finalPointList.size();i++){
+		for(int i=0;i<mFinalPointList.size();i++){
 
-			LatLng pointLL = finalPointList.get(i);
+			LatLng pointLL = mFinalPointList.get(i);
 			
 			//添加覆盖物
 			MarkerOptions markerOptions =
@@ -599,7 +596,7 @@ public class RunMapFragment extends SupportMapFragment{
 			if(0 == i){
 				markerOptions.icon(mStartPointMarker);
 			}else
-				if(finalPointList.size()-1 == i){
+				if(mFinalPointList.size()-1 == i){
 					markerOptions.icon(mEndPointMarker);
 				}else{
 					markerOptions.icon(mPointMarker);
@@ -613,7 +610,7 @@ public class RunMapFragment extends SupportMapFragment{
 			if(0 == i){
 				markerInfo = getString(R.string.start_point);
 			}else
-				if(finalPointList.size()-1 == i){
+				if(mFinalPointList.size()-1 == i){
 					markerInfo = getString(R.string.dest_point);
 				}
 			
@@ -624,8 +621,20 @@ public class RunMapFragment extends SupportMapFragment{
 		}
 		
 		//根据所有的旅程点设置地图的边界
+		showAllTripPoint();		
+	}
+	
+	/**
+	 * 根据所有的旅程点设置地图的边界
+	 */
+	private void showAllTripPoint(){
+		
+		if(mFinalPointList == null || mFinalPointList.size() == 0){
+			return;
+		}
+		
 		LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-		for(LatLng pointLL:finalPointList){
+		for(LatLng pointLL:mFinalPointList){
 			boundsBuilder.include(pointLL);
 		}
 		LatLngBounds bounds = boundsBuilder.build();
@@ -633,7 +642,6 @@ public class RunMapFragment extends SupportMapFragment{
 		MapStatusUpdate update = MapStatusUpdateFactory.newLatLngBounds(
 				bounds);
 		mBaiduMap.animateMapStatus(update,DEFAULT_MAP_UPDATE_ANIMATION_TIME);
-		
 	}
 	
 	private class MyLocationListener implements BDLocationListener{

@@ -14,6 +14,12 @@
         />
     
     <item 
+        android:id="@+id/menu_item_show_all_trip_point"
+        android:title="@string/show_all_trip_point"
+        android:showAsAction="ifRoom"
+        />
+    
+    <item 
         android:id="@+id/menu_item_locate_to_start_point"
         android:title="@string/locate_to_start_point"
         android:showAsAction="ifRoom"
