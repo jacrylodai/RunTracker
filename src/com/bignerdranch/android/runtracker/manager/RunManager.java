@@ -26,7 +26,8 @@ public class RunManager {
 	
 	private static final String TEST_PROVIDER = "TEST_PROVIDER";
 	
-	private static final int MIN_DISTANCE = 40;
+	//地理位置更新的最小间距
+	private static final int MIN_DISTANCE = 20;
 	
 	private static final String PREF_CURRENT_RUN_ID = "currentRunId";
 

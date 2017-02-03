@@ -17,7 +17,6 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -61,6 +60,7 @@ public class RunMapFragment extends SupportMapFragment{
 
 	private static final String TAG = RunMapFragment.class.getSimpleName();
 	
+	//传感器更新的频率：毫秒
 	private static final long FREQ_ORIENTATION_UPDATE = 60;
 	
 	private static final int SENSOR_FREQ_RATE = SensorManager.SENSOR_DELAY_UI;
@@ -71,11 +71,13 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	private static final int LOADER_LOAD_LOCATION_DATA_LIST = 1;
 	
+	//默认的地图放大级别
 	private static final float DEFAULT_MAP_ZOOM_LEVEL = 17f;
 	
-	//ms
+	//默认的地图更新动画时间：毫秒
 	private static final int DEFAULT_MAP_UPDATE_ANIMATION_TIME = 600;
 	
+	//旅程记录点之间的最小间距
 	private static final double MIN_TRIP_DISTANCE = 40;
 	
 	private BaiduMap mBaiduMap;
@@ -86,20 +88,27 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	private MyLocationListener mMyLocationListener;
 	
-	private boolean hasLocateToMyLocation,isTrackingMyLocation;
+	//是否定位到我的位置
+	private boolean hasLocateToMyLocation;
+	
+	//是否正在跟踪我的位置
+	private boolean isTrackingMyLocation;
 	
 	private BDLocation mMyBDLocation;
 
 	private SensorManager mSensorManager;
 	
+	//加速度传感器，地磁传感器，两者结合计算手机的旋转角度
 	private Sensor mAcceSensor,mMagnSensor;
 	
 	private OrientationSensorListener mOriSensorListener;
 	
+	//手机在Z轴上的旋转角度
 	private double mZDegree;
 
 	private BitmapDescriptor mCustomMarker,mPointMarker,mStartPointMarker,mEndPointMarker;
 	
+	//去除重复的节点得到的最终旅程点
 	private List<LatLng> mFinalPointList;
 	
 	private Handler mHandler = new Handler();
@@ -320,6 +329,9 @@ public class RunMapFragment extends SupportMapFragment{
 		}
 	}
 	
+	/**
+	 * 初始化资源
+	 */
 	private void initialResource(){
 
 		mCustomMarker = BitmapDescriptorFactory
@@ -330,6 +342,10 @@ public class RunMapFragment extends SupportMapFragment{
 		mEndPointMarker = BitmapDescriptorFactory.fromResource(R.drawable.end_point_marker);
 	}
 	
+	/**
+	 * 初始化地图
+	 * 在地图加载完成后加载旅程节点，之后设置到地图上
+	 */
 	private void initialMap(){
 				
 		mBaiduMap.setOnMapLoadedCallback(new BaiduMap.OnMapLoadedCallback() {
@@ -399,6 +415,9 @@ public class RunMapFragment extends SupportMapFragment{
 		
 	}
 	
+	/**
+	 * 初始化我的位置
+	 */
 	private void initialMyLocation() {
 		
 		mLocationClient = new LocationClient(getActivity());
@@ -412,6 +431,9 @@ public class RunMapFragment extends SupportMapFragment{
 		mLocationClient.setLocOption(option);
 	}
 
+	/**
+	 * 初始化传感器
+	 */
 	private void initialSensor() {
 		
 		mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
@@ -472,6 +494,10 @@ public class RunMapFragment extends SupportMapFragment{
 		
 	}
 	
+	/**
+	 * 
+	 * @param latLng
+	 */
 	private void locateToPosition(LatLng latLng){
 		
 		MapStatusUpdate locationUpdate = MapStatusUpdateFactory.newLatLng(latLng);
@@ -479,6 +505,11 @@ public class RunMapFragment extends SupportMapFragment{
 		
 	}
 	
+	/**
+	 * 定位到指定的位置，并把地图放大
+	 * @param latLng
+	 * @param zoomLevel
+	 */
 	private void locateToPositionAndZoomTo(LatLng latLng,final float zoomLevel){
 		
 		MapStatusUpdate locationUpdate = MapStatusUpdateFactory.newLatLng(latLng);
@@ -514,6 +545,11 @@ public class RunMapFragment extends SupportMapFragment{
 		}
 	}
 	
+	/**
+	 * 开启我的位置定位后
+	 * 设置定位模式
+	 * @param locationMode
+	 */
 	private void updateMapLocationMode(LocationMode locationMode){
 		
 		MyLocationConfiguration configuration = 
@@ -521,6 +557,9 @@ public class RunMapFragment extends SupportMapFragment{
 		mBaiduMap.setMyLocationConfigeration(configuration);
 	}
 	
+	/**
+	 * 把旅程节点更新到地图上面，在旅程节点加载完成后调用
+	 */
 	private void updateMap(){
 
 		List<LatLng> pointList = new ArrayList<LatLng>();
@@ -548,15 +587,19 @@ public class RunMapFragment extends SupportMapFragment{
 		if(pointList.size() == 0){
 			Toast.makeText(getActivity(),R.string.no_location_data
 					,Toast.LENGTH_SHORT).show();
+			getActivity().finish();
 			return;
 		}else
 			if(pointList.size() == 1){
 
 				Toast.makeText(getActivity(),R.string.need_more_location_data
 						,Toast.LENGTH_SHORT).show();
+				getActivity().finish();
 				return;
 			}
 
+		//去除重复的节点得到的最终旅程点
+		//但长期停留在一个位置时，就会产生很多重复的节点，去掉这些重复的节点
 		mFinalPointList = new ArrayList<LatLng>();
 		LatLng lastLL = pointList.get(0);
 		mFinalPointList.add(lastLL);
