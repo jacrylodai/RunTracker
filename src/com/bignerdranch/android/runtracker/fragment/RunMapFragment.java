@@ -232,14 +232,6 @@ public class RunMapFragment extends SupportMapFragment{
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
 		switch (item.getItemId()) {
-		
-		case R.id.menu_item_locate_to_my_location:
-			
-			if(mMyBDLocation != null){
-				LatLng myLL = new LatLng(mMyBDLocation.getLatitude(), mMyBDLocation.getLongitude());
-				locateToPositionAndZoomTo(myLL, DEFAULT_MAP_ZOOM_LEVEL);
-			}
-			return true;
 			
 		case R.id.menu_item_show_all_trip_point:
 			showAllTripPoint();
@@ -265,11 +257,26 @@ public class RunMapFragment extends SupportMapFragment{
 		case R.id.menu_item_show_my_location:
 			
 			if(isTrackingMyLocation){
-				isTrackingMyLocation = false;
-				doNotShowMyLocation();
+				if(mMyBDLocation != null){
+					LatLng myLL = new LatLng(mMyBDLocation.getLatitude()
+							, mMyBDLocation.getLongitude());
+					locateToPositionAndZoomTo(myLL, DEFAULT_MAP_ZOOM_LEVEL);
+				}
 			}else{
 				isTrackingMyLocation = true;
 				showMyLocation();
+			}
+			
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+				getActivity().invalidateOptionsMenu();
+			}
+			return true;
+			
+		case R.id.menu_item_do_not_show_my_location:
+			
+			if(isTrackingMyLocation){
+				isTrackingMyLocation = false;
+				doNotShowMyLocation();
 			}
 			
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
@@ -301,31 +308,26 @@ public class RunMapFragment extends SupportMapFragment{
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 		
-		MenuItem showMyLocationMenuItem = menu.findItem(R.id.menu_item_show_my_location);
+		MenuItem doNotShowMyLocationMenuItem = 
+				menu.findItem(R.id.menu_item_do_not_show_my_location);
 		if(isTrackingMyLocation){
-			showMyLocationMenuItem.setTitle(R.string.do_not_show_my_location);
+			doNotShowMyLocationMenuItem.setEnabled(true);
 		}else{
-			showMyLocationMenuItem.setTitle(R.string.show_my_location);
+			doNotShowMyLocationMenuItem.setEnabled(false);
 		}
 		
 		MenuItem locationModeNormal = menu.findItem(R.id.menu_item_location_mode_normal);
 		MenuItem locationModeFollowing = menu.findItem(R.id.menu_item_location_mode_following);
 		MenuItem locationModeCompass = menu.findItem(R.id.menu_item_location_mode_compass);
 		
-		MenuItem locateToMyLocation = menu.findItem(R.id.menu_item_locate_to_my_location);
-		
 		if(isTrackingMyLocation){
 			locationModeNormal.setEnabled(true);
 			locationModeFollowing.setEnabled(true);
 			locationModeCompass.setEnabled(true);
-			
-			locateToMyLocation.setEnabled(true);
 		}else{
 			locationModeNormal.setEnabled(false);
 			locationModeFollowing.setEnabled(false);
 			locationModeCompass.setEnabled(false);
-			
-			locateToMyLocation.setEnabled(false);
 		}
 	}
 	
