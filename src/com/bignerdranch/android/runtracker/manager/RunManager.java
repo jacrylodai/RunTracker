@@ -110,7 +110,8 @@ public class RunManager {
 		
 		PendingIntent intent = getLocationPendingIntent(true);
 		
-		int recordTime = mPref.getInt(ConfigFragment.PREF_RECORD_TIME, ConfigFragment.DEFAULT_RECORD_TIME);
+		int recordTime = mPref.getInt(ConfigFragment.PREF_RECORD_TIME
+				, ConfigFragment.DEFAULT_RECORD_TIME);
 		int recordTimeMill = recordTime*1000;
 		mLocationManager.requestLocationUpdates(provider, recordTimeMill, MIN_DISTANCE, intent);
 	}

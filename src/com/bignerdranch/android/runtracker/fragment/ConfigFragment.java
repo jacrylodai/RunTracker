@@ -1,43 +1,37 @@
 package com.bignerdranch.android.runtracker.fragment;
 
-import java.util.Arrays;
-import java.util.List;
-
-import com.bignerdranch.android.runtracker.R;
-import com.bignerdranch.android.runtracker.ui.ConfigItemSelectView;
-
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
-import android.widget.ListView;
+
+import com.bignerdranch.android.runtracker.R;
+import com.bignerdranch.android.runtracker.ui.ConfigItemSelectView;
 
 public class ConfigFragment extends Fragment {
 	
-	private static final String TAG = ConfigFragment.class.getSimpleName();
+	private static final String TAG = ConfigFragment.class.getSimpleName();	
+	
+	private static final String DIALOG_UPDATE_RECORD_TIME = "dialogUpdateRecordTime";
+	
+	private static final int REQUEST_CODE_UPDATE_RECORD_TIME = 1;
 	
 	public static final String PREF_RECORD_TIME = "recordTime";
 	
-	private static final Integer[] RECORD_TIME_ARRAY = new Integer[]{30,60,90,150,240,390};
-	
 	//默认的记录间隔时间（秒）
-	public static final int DEFAULT_RECORD_TIME = RECORD_TIME_ARRAY[2];
+	public static final int DEFAULT_RECORD_TIME = 90;
 	
 	private SharedPreferences mPref;
 	
 	private ConfigItemSelectView cisvConfigRecordTime;
-	
-	private AlertDialog mRecordTimeDialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -80,46 +74,39 @@ public class ConfigFragment extends Fragment {
 	
 	private void showUpdateRecordTimeDialog(){
 		
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(R.string.record_time_title)
-			.setNegativeButton(android.R.string.cancel,null);
-		builder.setCancelable(true);
+		int recordTime = mPref.getInt(PREF_RECORD_TIME,DEFAULT_RECORD_TIME);;
+		UpdateRecordTimeFragment updateRecoTimeFrag = 
+				UpdateRecordTimeFragment.newInstance(recordTime);
+		updateRecoTimeFrag.setTargetFragment(ConfigFragment.this, REQUEST_CODE_UPDATE_RECORD_TIME);
 		
-		View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_update_record_time, null);
-		ListView lvTimeList = (ListView) view.findViewById(R.id.lv_time_list);
+		FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+		updateRecoTimeFrag.show(fragmentManager, DIALOG_UPDATE_RECORD_TIME);
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		
-		final ArrayAdapter<Integer> adapter = 
-				new ArrayAdapter<Integer>(getActivity(), android.R.layout.simple_list_item_single_choice
-						, RECORD_TIME_ARRAY);
+		Log.i(TAG, "onActivityResult");
+		Log.i(TAG, "requestCode:"+requestCode+"---resultCode:"+resultCode);
 		
-		lvTimeList.setAdapter(adapter);
-		lvTimeList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		
-		int recordTime = mPref.getInt(PREF_RECORD_TIME, DEFAULT_RECORD_TIME);;
-		int index = Arrays.binarySearch(RECORD_TIME_ARRAY, recordTime);
-		lvTimeList.setItemChecked(index, true);
-		
-		lvTimeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-
-				int selectedRecordTime = adapter.getItem(position);
-				Log.i(TAG, "you have select :"+selectedRecordTime);
+		switch (requestCode) {
+		case REQUEST_CODE_UPDATE_RECORD_TIME:
+			if(resultCode == Activity.RESULT_OK){
+				int recordTime = data.getIntExtra(
+						UpdateRecordTimeFragment.EXTRA_RECORD_TIME, DEFAULT_RECORD_TIME);
+				Log.i(TAG, "recordTime:"+recordTime);
 				
 				mPref.edit()
-					.putInt(PREF_RECORD_TIME, selectedRecordTime)
+					.putInt(PREF_RECORD_TIME, recordTime)
 					.commit();
 				updateConfigUI();
-				mRecordTimeDialog.dismiss();
 			}
-		});
-		
-		builder.setView(view);
-		
-		mRecordTimeDialog = builder.create();
-		mRecordTimeDialog.show();
+			break;
+
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+			break;
+		}
 	}
 	
 }
