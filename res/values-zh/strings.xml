@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">旅程记录</string>
+
+    <string name="gps_enabled">打开GPS</string>
+    <string name="gps_disabled">关闭GPS</string>
+    
+    
+    <!-- RunListActivity -->    
+    <!-- layout -->
+    <string name="run_desc">旅程记录:%s</string>
+    <!-- menu -->
+    <string name="new_run">新建旅程</string>
+    <string name="config">设置</string>
+    
+    <!-- RunActivity -->
+    <!-- layout -->
+    <string name="current_run_status">旅程状态:</string>
+    <string name="started">创建日期:</string>
+    <string name="latitude">纬度:</string>
+    <string name="longitude">经度:</string>
+    <string name="accuracy">精度(米):</string>
+    <string name="altitude">高度(米):</string>
+    <string name="elapsed_time">记录时长:</string>
+    <string name="start">开始</string>
+    <string name="stop">停止</string>    
+    <string name="show_map">在地图上显示</string>
+    <string name="string_tracking_current_run">你正在记录当前旅程!</string>
+    <string name="string_not_tracking_current_run">你没有记录当前旅程!</string>
+    
+    <!-- RunMapActivity -->
+    <!-- layout -->
+    <!-- menu -->
+    <string name="normal_map">普通地图</string>
+    <string name="satellite_map">卫星地图</string>
+    <string name="show_my_location">显示我的位置</string>
+    <string name="do_not_show_my_location">不显示我的位置</string>
+    <string name="location_mode_normal">普通定位模式</string>
+    <string name="location_mode_following">追随定位模式</string>
+    <string name="location_mode_compass">罗盘定位模式</string>
+    <string name="locate_to_start_point">切换到旅程起点</string>
+    <string name="locate_to_dest_point">切换到旅程终点</string>
+    <string name="show_all_trip_point">显示整个旅程节点</string>
+    <!-- back -->
+    <string name="cant_get_sensor">无法得到传感器，不能显示你的位置</string>
+    <string name="trip_point">旅程节点 %d</string>
+    <string name="start_point">开始节点</string>
+    <string name="dest_point">终止节点</string>
+    <string name="no_location_data">没有找到旅程节点数据!</string>    
+    <string name="need_more_location_data">只有一条旅程节点数据，至少需要2条数据!</string>    
+    
+    <!-- ConfigActivity -->
+    <!-- layout -->
+    <string name="record_time_title">记录频率（秒）</string>
+    <string name="record_time_desc">软件会每隔 %d 秒记录一次旅程信息.</string>
+    
+</resources>
