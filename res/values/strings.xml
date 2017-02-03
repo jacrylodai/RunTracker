@@ -22,6 +22,7 @@
     <string name="started">Started:</string>
     <string name="latitude">Latitude:</string>
     <string name="longitude">Longitude:</string>
+    <string name="accuracy">Accuracy:</string>
     <string name="altitude">Altitude:</string>
     <string name="elapsed_time">Elapsed Time:</string>
     <string name="start">Start</string>

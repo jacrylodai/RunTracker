@@ -16,6 +16,8 @@ public class LocationData {
 	
 	private double mLongitude;
 	
+	private double mAccuracy;
+	
 	private double mAltitude;
 	
 	private String mProvider;
@@ -76,6 +78,14 @@ public class LocationData {
 		mProvider = provider;
 	}
 
+	public double getAccuracy() {
+		return mAccuracy;
+	}
+
+	public void setAccuracy(double accuracy) {
+		mAccuracy = accuracy;
+	}
+
 	public static LocationData parseLocation(Location location) {
 		
 		LocationData locationData = new LocationData();
@@ -83,6 +93,7 @@ public class LocationData {
 		locationData.setTimestamp(timestamp);
 		locationData.setLatitude(location.getLatitude());
 		locationData.setLongitude(location.getLongitude());
+		locationData.setAccuracy(location.getAccuracy());
 		locationData.setAltitude(location.getAltitude());
 		locationData.setProvider(location.getProvider());
 		return locationData;

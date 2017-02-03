@@ -586,14 +586,14 @@ public class RunMapFragment extends SupportMapFragment{
 		
 		if(pointList.size() == 0){
 			Toast.makeText(getActivity(),R.string.no_location_data
-					,Toast.LENGTH_SHORT).show();
+					,Toast.LENGTH_LONG).show();
 			getActivity().finish();
 			return;
 		}else
 			if(pointList.size() == 1){
 
 				Toast.makeText(getActivity(),R.string.need_more_location_data
-						,Toast.LENGTH_SHORT).show();
+						,Toast.LENGTH_LONG).show();
 				getActivity().finish();
 				return;
 			}

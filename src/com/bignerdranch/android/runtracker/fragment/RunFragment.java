@@ -42,7 +42,7 @@ public class RunFragment extends Fragment {
 
     private Button mStartButton, mStopButton,mButtonShowMap;
     private TextView mTVCurrentRunStatus,mStartedTextView, mLatitudeTextView, 
-        mLongitudeTextView, mAltitudeTextView, mDurationTextView;
+        mLongitudeTextView,mAccuracyTextView, mAltitudeTextView, mDurationTextView;
     
     private RunManager mRunManager;
     
@@ -172,6 +172,7 @@ public class RunFragment extends Fragment {
         mStartedTextView = (TextView)view.findViewById(R.id.run_startedTextView);
         mLatitudeTextView = (TextView)view.findViewById(R.id.run_latitudeTextView);
         mLongitudeTextView = (TextView)view.findViewById(R.id.run_longitudeTextView);
+        mAccuracyTextView = (TextView) view.findViewById(R.id.run_accuracyTextView);
         mAltitudeTextView = (TextView)view.findViewById(R.id.run_altitudeTextView);
         mDurationTextView = (TextView)view.findViewById(R.id.run_durationTextView);
                 
@@ -282,6 +283,7 @@ public class RunFragment extends Fragment {
 		if(mRun != null && mLastLocationData != null){
 			mLatitudeTextView.setText(String.valueOf(mLastLocationData.getLatitude()));
 			mLongitudeTextView.setText(String.valueOf(mLastLocationData.getLongitude()));
+			mAccuracyTextView.setText(String.valueOf(mLastLocationData.getAccuracy()));
 			mAltitudeTextView.setText(String.valueOf(mLastLocationData.getAltitude()));
 			
 			int durationSeconds = mRun.getDurationSeconds(
@@ -291,6 +293,7 @@ public class RunFragment extends Fragment {
 		}else{
 			mLatitudeTextView.setText("");
 			mLongitudeTextView.setText("");
+			mAccuracyTextView.setText("");
 			mAltitudeTextView.setText("");
 			mDurationTextView.setText("");
 		}

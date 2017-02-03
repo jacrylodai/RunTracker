@@ -37,6 +37,7 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 				"timestamp integer,"+
 				"latitude real,"+
 				"longitude real,"+
+				"accuracy real,"+
 				"altitude real,"+
 				"provider varchar(100)"+
 			")";
@@ -52,6 +53,8 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 	private static final String COLUMN_LOCATION_DATA_LATITUDE = "latitude";
 	
 	private static final String COLUMN_LOCATION_DATA_LONGITUDE = "longitude";
+	
+	private static final String COLUMN_LOCATION_DATA_ACCURACY = "accuracy";
 	
 	private static final String COLUMN_LOCATION_DATA_ALTITUDE = "altitude";
 	
@@ -88,6 +91,7 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 				, locationData.getTimestamp().getTime());
 		contentValues.put(COLUMN_LOCATION_DATA_LATITUDE, locationData.getLatitude());
 		contentValues.put(COLUMN_LOCATION_DATA_LONGITUDE, locationData.getLongitude());
+		contentValues.put(COLUMN_LOCATION_DATA_ACCURACY, locationData.getAccuracy());
 		contentValues.put(COLUMN_LOCATION_DATA_ALTITUDE, locationData.getAltitude());
 		contentValues.put(COLUMN_LOCATION_DATA_PROVIDER, locationData.getProvider());
 		return getReadableDatabase().insert(TABLE_LOCATION_DATA_NAME, null, contentValues);
@@ -186,6 +190,7 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 			
 			locaData.setLatitude(getDouble(getColumnIndex(COLUMN_LOCATION_DATA_LATITUDE)));
 			locaData.setLongitude(getDouble(getColumnIndex(COLUMN_LOCATION_DATA_LONGITUDE)));
+			locaData.setAccuracy(getDouble(getColumnIndex(COLUMN_LOCATION_DATA_ACCURACY)));
 			locaData.setAltitude(getDouble(getColumnIndex(COLUMN_LOCATION_DATA_ALTITUDE)));
 			locaData.setProvider(getString(getColumnIndex(COLUMN_LOCATION_DATA_PROVIDER)));
 			

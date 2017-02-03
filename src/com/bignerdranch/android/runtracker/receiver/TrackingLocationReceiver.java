@@ -1,7 +1,5 @@
 package com.bignerdranch.android.runtracker.receiver;
 
-import java.util.Date;
-
 import android.content.Context;
 import android.location.Location;
 
@@ -15,13 +13,7 @@ public class TrackingLocationReceiver extends LocationReceiver {
 		
 		super.onLocationReceived(context, location);
 		
-		LocationData locationData = new LocationData();
-		
-		locationData.setTimestamp(new Date(location.getTime()));
-		locationData.setLatitude(location.getLatitude());
-		locationData.setLongitude(location.getLongitude());
-		locationData.setAltitude(location.getAltitude());
-		locationData.setProvider(location.getProvider());
+		LocationData locationData = LocationData.parseLocation(location);		
 		
 		RunManager.getInstance(context).insertLocationData(locationData);
 	}
