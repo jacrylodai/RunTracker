@@ -77,8 +77,8 @@ public class RunMapFragment extends SupportMapFragment{
 	//默认的地图更新动画时间：毫秒
 	private static final int DEFAULT_MAP_UPDATE_ANIMATION_TIME = 600;
 	
-	//旅程记录点之间的最小间距
-	private static final double MIN_TRIP_DISTANCE = 40;
+	//统计旅程记录点之间的最小间距
+	public static final double MIN_TRIP_DISTANCE = 20;
 	
 	private BaiduMap mBaiduMap;
 	

@@ -23,11 +23,16 @@
     <string name="accuracy">Accuracy:</string>
     <string name="altitude">Altitude:</string>
     <string name="elapsed_time">Elapsed Time:</string>
+    <string name="total_metre">Total Metre(m):</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>    
     <string name="show_map">Show Map</string>
     <string name="string_tracking_current_run">You are tracking current run!</string>
     <string name="string_not_tracking_current_run">You are not tracking current run!</string>
+    <!-- back -->
+    <string name="cant_show_total_metre_no_location_data">Can\'t show total metre,There is no location data!</string>    
+    <string name="cant_show_total_metre_need_more_location_data">Can\'t show total metre,There is only one location data,need more!</string>    
+    
     
     <!-- RunMapActivity -->
     <!-- layout -->

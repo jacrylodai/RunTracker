@@ -3,16 +3,16 @@
     
     <item
         android:id="@+id/menu_item_new_run"
-        android:title="@string/new_run"
         android:icon="@drawable/ic_menu_add"
-        android:showAsAction="ifRoom"
+        android:title="@string/new_run"
+        android:showAsAction="ifRoom|withText"
         />
 
     <item
         android:id="@+id/menu_item_config"
-        android:title="@string/config"
         android:icon="@drawable/ic_menu_preferences"
-        android:showAsAction="ifRoom"
+        android:title="@string/config"
+        android:showAsAction="ifRoom|withText"
         />
     
 </menu>

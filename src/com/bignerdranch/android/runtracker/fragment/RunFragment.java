@@ -1,11 +1,15 @@
 package com.bignerdranch.android.runtracker.fragment;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,11 +25,18 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.mapapi.SDKInitializer;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.CoordinateConverter;
+import com.baidu.mapapi.utils.DistanceUtil;
+import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
 import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.activity.RunMapActivity;
+import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCursor;
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.loader.LastLocationDataLoader;
+import com.bignerdranch.android.runtracker.loader.LocationDataListLoader;
 import com.bignerdranch.android.runtracker.loader.RunLoader;
 import com.bignerdranch.android.runtracker.manager.RunManager;
 import com.bignerdranch.android.runtracker.receiver.LocationReceiver;
@@ -37,12 +48,13 @@ public class RunFragment extends Fragment {
 	private static final String ARG_RUN_ID = "RUN_ID";
 	
 	private static final int LOADER_LOAD_RUN = 1;
-	
-	private static final int LOADER_LOAD_LOAST_LOCATION_DATA = 2;
 
+	private static final int LOADER_LOAD_LOCATION_DATA_LIST = 2;
+	
     private Button mStartButton, mStopButton,mButtonShowMap;
     private TextView mTVCurrentRunStatus,mStartedTextView, mLatitudeTextView, 
-        mLongitudeTextView,mAccuracyTextView, mAltitudeTextView, mDurationTextView;
+        mLongitudeTextView,mAccuracyTextView, mAltitudeTextView, mDurationTextView
+        ,mTotalMetreTextView;
     
     private RunManager mRunManager;
     
@@ -51,6 +63,8 @@ public class RunFragment extends Fragment {
     private boolean isTrackingCurrentRun;
     
     private LocationData mLastLocationData;
+
+	private LocationDataCursor mLocationDataCursor;
     
     private LocationReceiver locationReceiver = new LocationReceiver(){
     	
@@ -75,7 +89,40 @@ public class RunFragment extends Fragment {
     			Toast.makeText(activity, toastTextId, Toast.LENGTH_SHORT).show();
     		}
     	};
-    };
+    };    
+
+	private LoaderCallbacks<Cursor> mLocationDataListLoaderCallbacks = 
+			new LoaderCallbacks<Cursor>() {
+
+				@Override
+				public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+					
+					long runId = args.getLong(ARG_RUN_ID, -1);
+					return new LocationDataListLoader(getActivity(), runId);
+				}
+
+				@Override
+				public void onLoadFinished(Loader<Cursor> loader,
+						Cursor cursor) {
+					mLocationDataCursor = (LocationDataCursor) cursor;
+					
+					if(mLocationDataCursor.moveToLast()){
+						mLastLocationData = mLocationDataCursor.getLocationData();
+					}else{
+						mLastLocationData = null;
+					}
+					updateButtonUI();
+					updateUI();
+					
+					showTotalTripMetre();
+				}
+
+				@Override
+				public void onLoaderReset(Loader<Cursor> loader) {
+					mLocationDataCursor.close();
+					mLocationDataCursor = null;
+				}
+			};
     
     private LoaderCallbacks<Run> mRunLoaderCallbacks = 
     		new LoaderCallbacks<Run>() {
@@ -102,34 +149,8 @@ public class RunFragment extends Fragment {
 					//do nothing
 				}
 			};
+				
 			
-	private LoaderCallbacks<LocationData> mLastLocationDataLoaderCallbacks = 
-			new LoaderCallbacks<LocationData>() {
-
-				@Override
-				public Loader<LocationData> onCreateLoader(int id, Bundle args) {
-					
-					long runId = args.getLong(ARG_RUN_ID, -1);
-					return new LastLocationDataLoader(getActivity(), runId);
-				}
-
-				@Override
-				public void onLoadFinished(Loader<LocationData> loader,
-						LocationData data) {
-					
-					mLastLocationData = data;
-					checkIsTrackingCurrentRun();
-					updateButtonUI();
-					updateUI();
-				}
-
-				@Override
-				public void onLoaderReset(Loader<LocationData> arg0) {
-
-					//do nothing
-				}
-			};
-	
 	public static RunFragment newInstance(long runId){
 		
 		Bundle args = new Bundle();
@@ -143,6 +164,7 @@ public class RunFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		SDKInitializer.initialize(getActivity().getApplicationContext());
 		setRetainInstance(true);
 		
 		mRunManager = RunManager.getInstance(getActivity());
@@ -154,9 +176,8 @@ public class RunFragment extends Fragment {
 			if(runId != -1){
 				
 				getLoaderManager().initLoader(LOADER_LOAD_RUN, args, mRunLoaderCallbacks);
-				
-				getLoaderManager().initLoader(LOADER_LOAD_LOAST_LOCATION_DATA, args
-						, mLastLocationDataLoaderCallbacks);
+				getLoaderManager().initLoader(LOADER_LOAD_LOCATION_DATA_LIST
+						, args, mLocationDataListLoaderCallbacks);
 			}
 		}
 		
@@ -176,6 +197,7 @@ public class RunFragment extends Fragment {
         mAccuracyTextView = (TextView) view.findViewById(R.id.run_accuracyTextView);
         mAltitudeTextView = (TextView)view.findViewById(R.id.run_altitudeTextView);
         mDurationTextView = (TextView)view.findViewById(R.id.run_durationTextView);
+        mTotalMetreTextView = (TextView) view.findViewById(R.id.run_totalMetreTextView);
                 
         mStartButton = (Button)view.findViewById(R.id.run_startButton);
         mStartButton.setOnClickListener(new View.OnClickListener() {
@@ -206,6 +228,8 @@ public class RunFragment extends Fragment {
 				checkIsTrackingCurrentRun();
 				updateButtonUI();
 				updateUI();
+				
+				mLocationDataCursor.requery();
 			}
 		});
         
@@ -321,6 +345,81 @@ public class RunFragment extends Fragment {
 		}else{
 			mButtonShowMap.setEnabled(false);
 		}
+	}
+	
+	public void showTotalTripMetre(){
+		
+		List<LatLng> pointList = new ArrayList<LatLng>();
+		
+		mLocationDataCursor.moveToFirst();
+		while(!mLocationDataCursor.isAfterLast()){
+			LocationData locationData = mLocationDataCursor.getLocationData();
+			
+			LatLng sourceLatLng = new LatLng(locationData.getLatitude()
+					, locationData.getLongitude());
+			
+			// 将GPS设备采集的原始GPS坐标转换成百度坐标  
+			CoordinateConverter converter  = new CoordinateConverter();  
+			converter.from(CoordType.GPS);  
+			// sourceLatLng待转换坐标  
+			converter.coord(sourceLatLng);  
+			LatLng desLatLng = converter.convert();
+			
+			pointList.add(desLatLng);
+
+			mLocationDataCursor.moveToNext();
+		}
+		
+		
+		if(pointList.size() == 0){
+			Toast.makeText(getActivity(),R.string.cant_show_total_metre_no_location_data
+					,Toast.LENGTH_LONG).show();
+			return;
+		}else
+			if(pointList.size() == 1){
+
+				Toast.makeText(getActivity(),R.string.cant_show_total_metre_need_more_location_data
+						,Toast.LENGTH_LONG).show();
+				return;
+			}
+
+		//去除重复的节点得到的最终旅程点
+		//但长期停留在一个位置时，就会产生很多重复的节点，去掉这些重复的节点
+		List<LatLng> finalPointList = new ArrayList<LatLng>();
+		LatLng lastLL = pointList.get(0);
+		finalPointList.add(lastLL);
+		for(int i=1;i<pointList.size();i++){
+			LatLng pointLL = pointList.get(i);
+			double distance = DistanceUtil.getDistance(lastLL, pointLL);
+			Log.i(TAG, "i:"+i+"-- distance:"+distance);
+						
+			if(distance > RunMapFragment.MIN_TRIP_DISTANCE){
+				lastLL = pointLL;
+				finalPointList.add(lastLL);
+			}else{
+				
+				if(i == pointList.size()-1){
+					lastLL = pointLL;
+					finalPointList.add(lastLL);
+				}
+			}
+		}
+		
+		//开始统计总里程
+		double totalDistance = 0;
+		
+		lastLL = finalPointList.get(0);
+		for(int i=1;i<finalPointList.size();i++){
+			LatLng pointLL = finalPointList.get(i);
+			double distance = DistanceUtil.getDistance(lastLL, pointLL);
+			Log.i(TAG, "i:"+i+"-- distance:"+distance);
+			totalDistance += distance;
+		}
+		Log.i(TAG, "total distance:"+totalDistance);
+		
+		DecimalFormat decFormat = new DecimalFormat("#");
+		String totalDistStr = decFormat.format(totalDistance);
+		mTotalMetreTextView.setText(totalDistStr);
 	}
 	
 }

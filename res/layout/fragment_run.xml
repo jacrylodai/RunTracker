@@ -97,6 +97,22 @@
             android:textSize="18sp"
             />
     </TableRow>
+    
+    <TableRow>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:paddingRight="5sp"
+            android:text="@string/total_metre"
+            />
+        <TextView android:id="@+id/run_totalMetreTextView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            />
+    </TableRow>
+    
     <LinearLayout
         android:orientation="horizontal"
         android:layout_height="wrap_content"
