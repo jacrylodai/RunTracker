@@ -62,6 +62,7 @@ public class RunFragment extends Fragment {
     		}
     		mLastLocationData = LocationData.parseLocation(location);
     		if(RunFragment.this.isVisible()){
+        		updateButtonUI();
         		updateUI();
     		}
     	};
