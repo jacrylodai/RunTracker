@@ -26,7 +26,7 @@ public class RunManager {
 	
 	private static final String TEST_PROVIDER = "TEST_PROVIDER";
 	
-	private static final int MIN_DISTANCE = 2;
+	private static final int MIN_DISTANCE = 40;
 	
 	private static final String PREF_CURRENT_RUN_ID = "currentRunId";
 
@@ -102,25 +102,12 @@ public class RunManager {
 		Log.i(TAG, "using gps:"+provider);
 		Toast.makeText(mAppContext, "using gps:"+provider, Toast.LENGTH_LONG).show();
 		
-		Location lastLocation = mLocationManager.getLastKnownLocation(provider);
-		if(lastLocation != null){
-			lastLocation.setTime(System.currentTimeMillis());
-			broadcastLocation(lastLocation);
-		}
-		
 		PendingIntent intent = getLocationPendingIntent(true);
 		
 		int recordTime = mPref.getInt(ConfigFragment.PREF_RECORD_TIME
 				, ConfigFragment.DEFAULT_RECORD_TIME);
 		int recordTimeMill = recordTime*1000;
 		mLocationManager.requestLocationUpdates(provider, recordTimeMill, MIN_DISTANCE, intent);
-	}
-
-	private void broadcastLocation(Location lastLocation) {
-
-		Intent intent = new Intent(ACTION_LOCATION);
-		intent.putExtra(LocationManager.KEY_LOCATION_CHANGED, lastLocation);
-		mAppContext.sendBroadcast(intent);
 	}
 
 	private PendingIntent getLocationPendingIntent(boolean shouldCreate) {

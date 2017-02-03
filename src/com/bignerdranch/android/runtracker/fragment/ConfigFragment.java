@@ -24,6 +24,7 @@ public class ConfigFragment extends Fragment {
 	
 	private static final int REQUEST_CODE_UPDATE_RECORD_TIME = 1;
 	
+	//记录间隔时间
 	public static final String PREF_RECORD_TIME = "recordTime";
 	
 	//默认的记录间隔时间（秒）
