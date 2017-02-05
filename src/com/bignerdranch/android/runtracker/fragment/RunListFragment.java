@@ -6,7 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
@@ -18,6 +19,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -28,13 +31,19 @@ import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.loader.RunListCursorLoader;
 
-public class RunListFragment extends ListFragment {
+public class RunListFragment extends Fragment {
 	
 	private static final String TAG = "RunListFragment";
 	
 	private static final int REQUEST_CODE_NEW_RUN = 1;
 	
 	private static final int LOADER_LOAD_RUN_LIST = 1;
+	
+	private ListView mLVRunList;
+	
+	private Button mButtonStart,mButtonStop;
+	
+	private TextView mTVElapsedTime,mTVTotalMetre;
 	
 	private LoaderCallbacks<Cursor> mRunListLoaderCallbacks = 
 			new LoaderCallbacks<Cursor>() {
@@ -50,13 +59,13 @@ public class RunListFragment extends ListFragment {
 
 					RunCursorAdapter adapter = 
 							new RunCursorAdapter(getActivity(), (RunCursor)cursor);
-					setListAdapter(adapter);
+					mLVRunList.setAdapter(adapter);
 				}
 
 				@Override
 				public void onLoaderReset(Loader<Cursor> loader) {
 
-					setListAdapter(null);
+					mLVRunList.setAdapter(null);
 				}
 			};
 	
@@ -70,15 +79,35 @@ public class RunListFragment extends ListFragment {
 	}
 	
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		
-		Log.i(TAG, "onListItemClick");
-		Log.i(TAG,"runId:"+id);
+		View view = inflater.inflate(R.layout.fragment_run_list, container, false);
 		
-		Intent intent = new Intent(getActivity(),RunActivity.class);
-		intent.putExtra(RunActivity.EXTRA_RUN_ID, id);
-		startActivity(intent);
+		mLVRunList = (ListView) view.findViewById(R.id.lv_run_list);
+		mTVElapsedTime = (TextView) view.findViewById(R.id.tv_elapsed_time);
+		mTVTotalMetre = (TextView) view.findViewById(R.id.tv_total_metre);
+		mButtonStart = (Button) view.findViewById(R.id.button_start);
+		mButtonStop = (Button) view.findViewById(R.id.button_stop);
+		
+		mLVRunList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				
+				Log.i(TAG, "onListItemClick");
+				Log.i(TAG,"runId:"+id);
+				
+				Intent intent = new Intent(getActivity(),RunActivity.class);
+				intent.putExtra(RunActivity.EXTRA_RUN_ID, id);
+				startActivity(intent);
+			}
+		});
+		
+		return view;
 	}
+	
 	
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
