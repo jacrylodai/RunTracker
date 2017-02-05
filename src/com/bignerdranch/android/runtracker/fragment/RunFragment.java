@@ -397,7 +397,7 @@ public class RunFragment extends Fragment {
 				lastLL = pointLL;
 				finalPointList.add(lastLL);
 			}else{
-				
+				//如果小于最小间距，那就忽略当前节点，说明有可能停留在一个地方
 				if(i == pointList.size()-1){
 					lastLL = pointLL;
 					finalPointList.add(lastLL);
@@ -408,10 +408,10 @@ public class RunFragment extends Fragment {
 		//开始统计总里程
 		double totalDistance = 0;
 		
-		lastLL = finalPointList.get(0);
 		for(int i=1;i<finalPointList.size();i++){
+			LatLng previousLL = finalPointList.get(i-1);
 			LatLng pointLL = finalPointList.get(i);
-			double distance = DistanceUtil.getDistance(lastLL, pointLL);
+			double distance = DistanceUtil.getDistance(previousLL, pointLL);
 			Log.i(TAG, "i:"+i+"-- distance:"+distance);
 			totalDistance += distance;
 		}
