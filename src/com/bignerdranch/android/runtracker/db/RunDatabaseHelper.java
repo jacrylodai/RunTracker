@@ -21,13 +21,28 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_RUN = 
 			"create table t_run("+
 				"_id integer primary key autoincrement,"+
+				"run_name varchar(100),"+
+				"run_state integer,"+
+				"total_metre integer,"+
+				"elapsed_time integer,"+
+				"total_trip_point integer,"+
 				"start_date integer"+
 			")";
 	
 	private static final String TABLE_RUN_NAME = "t_run";
 	
 	private static final String COLUMN_RUN_RUN_ID = "_id";
+
+	private static final String COLUMN_RUN_RUN_STATE= "run_state";
 	
+	private static final String COLUMN_RUN_RUN_NAME = "run_name";
+
+	private static final String COLUMN_RUN_TOTAL_METRE = "total_metre";
+
+	private static final String COLUMN_RUN_ELAPSED_TIME = "elapsed_time";
+
+	private static final String COLUMN_RUN_TOTAL_TRIP_POINT = "total_trip_point";
+
 	private static final String COLUMN_RUN_START_DATE = "start_date";
 	
 	private static final String CREATE_TABLE_LOCATION_DATA = 
@@ -76,14 +91,49 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 
 	}
 	
-	public long insertRun(Run run){
+	public synchronized long insertRun(Run run){
 		
 		ContentValues contentValues = new ContentValues();
+		
+		contentValues.put(COLUMN_RUN_RUN_STATE, run.getRunState());
+		contentValues.put(COLUMN_RUN_RUN_NAME, run.getRunName());
+		contentValues.put(COLUMN_RUN_TOTAL_METRE, run.getTotalMetre());
+		contentValues.put(COLUMN_RUN_ELAPSED_TIME, run.getElapsedTime());
+		contentValues.put(COLUMN_RUN_TOTAL_TRIP_POINT, run.getTotalTripPoint());
 		contentValues.put(COLUMN_RUN_START_DATE, run.getStartDate().getTime());
 		return getWritableDatabase().insert(TABLE_RUN_NAME, null, contentValues);
 	}
+
+	public synchronized long updateRun(Run run){
+		
+		ContentValues contentValues = new ContentValues();
+		
+		contentValues.put(COLUMN_RUN_RUN_STATE, run.getRunState());
+		contentValues.put(COLUMN_RUN_RUN_NAME, run.getRunName());
+		contentValues.put(COLUMN_RUN_TOTAL_METRE, run.getTotalMetre());
+		contentValues.put(COLUMN_RUN_ELAPSED_TIME, run.getElapsedTime());
+		contentValues.put(COLUMN_RUN_TOTAL_TRIP_POINT, run.getTotalTripPoint());
+		contentValues.put(COLUMN_RUN_START_DATE, run.getStartDate().getTime());
+		return getWritableDatabase()
+				.update(
+						TABLE_RUN_NAME
+						, contentValues
+						, COLUMN_RUN_RUN_ID + "=?"
+						, new String[]{String.valueOf(run.getRunId())}
+						);
+	}
 	
-	public long insertLocation(LocationData locationData){
+	public synchronized int deleteRunById(long runId){
+		
+		return getWritableDatabase()
+			.delete(
+					TABLE_RUN_NAME
+					, COLUMN_RUN_RUN_ID + "=?"
+					, new String[]{ String.valueOf(runId) }
+					);
+	}
+	
+	public synchronized long insertLocationData(LocationData locationData){
 		
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(COLUMN_LOCATION_DATA_FK_RUN_ID, locationData.getFKRunId());
@@ -97,9 +147,24 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 		return getReadableDatabase().insert(TABLE_LOCATION_DATA_NAME, null, contentValues);
 	}
 	
+	public synchronized long deleteLocationDataByRunId(long runId){
+		
+		return getWritableDatabase()
+				.delete(
+						TABLE_LOCATION_DATA_NAME
+						, COLUMN_LOCATION_DATA_FK_RUN_ID + "=?"
+						, new String[]{ String.valueOf(runId) }
+						);
+	}
+	
 	public RunCursor queryRunList(){
 		Cursor wrapped = getReadableDatabase()
-				.query(TABLE_RUN_NAME, null, null, null, null, null
+				.query(TABLE_RUN_NAME
+						, null
+						, COLUMN_RUN_RUN_STATE + "=?"
+						, new String[]{ String.valueOf(Run.STATE_NORMAL) }
+						, null
+						, null
 						, COLUMN_RUN_START_DATE + " desc");
 		return new RunCursor(wrapped);
 	}
@@ -160,9 +225,19 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 			}
 			Run run = new Run();
 			long runId = getLong(getColumnIndex(COLUMN_RUN_RUN_ID));
+			int runState = getInt(getColumnIndex(COLUMN_RUN_RUN_STATE));
+			String runName = getString(getColumnIndex(COLUMN_RUN_RUN_NAME));
+			long totalMetre = getLong(getColumnIndex(COLUMN_RUN_TOTAL_METRE));
+			long elapsedTime = getLong(getColumnIndex(COLUMN_RUN_ELAPSED_TIME));
+			int totalTripPoint = getInt(getColumnIndex(COLUMN_RUN_TOTAL_TRIP_POINT));
 			Date startDate = new Date(getLong(getColumnIndex(COLUMN_RUN_START_DATE)));
 			
 			run.setRunId(runId);
+			run.setRunState(runState);
+			run.setRunName(runName);
+			run.setTotalMetre(totalMetre);
+			run.setElapsedTime(elapsedTime);
+			run.setTotalTripPoint(totalTripPoint);
 			run.setStartDate(startDate);
 			return run;
 		}

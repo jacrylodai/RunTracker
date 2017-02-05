@@ -164,7 +164,6 @@ public class RunFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		SDKInitializer.initialize(getActivity().getApplicationContext());
 		setRetainInstance(true);
 		
 		mRunManager = RunManager.getInstance(getActivity());
@@ -229,7 +228,8 @@ public class RunFragment extends Fragment {
 				updateButtonUI();
 				updateUI();
 				
-				mLocationDataCursor.requery();
+				getLoaderManager().restartLoader(LOADER_LOAD_LOCATION_DATA_LIST
+						, null, mLocationDataListLoaderCallbacks);
 			}
 		});
         

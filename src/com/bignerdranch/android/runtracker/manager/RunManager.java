@@ -1,21 +1,32 @@
 package com.bignerdranch.android.runtracker.manager;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.location.LocationManager;
 import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.CoordinateConverter;
+import com.baidu.mapapi.utils.DistanceUtil;
+import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
+import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCursor;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.fragment.ConfigFragment;
+import com.bignerdranch.android.runtracker.fragment.RunMapFragment;
 
 public class RunManager {
 	
@@ -60,7 +71,27 @@ public class RunManager {
 	
 	public Run startNewRun(){
 		
+		if(isTrackingRun() == true){
+			Log.e(TAG, "software is tracking run,Can't start a new run.");			
+			return null;
+		}
+		//初始化一个旅程
 		Run run = new Run();
+		run.setRunId(-1);
+		run.setRunState(Run.STATE_CURRENT_TRACKING);
+		
+		Date startDate = new Date();
+		String startDateStr = 
+				DateFormat.getMediumDateFormat(mAppContext).format(startDate) + " " +
+				DateFormat.getTimeFormat(mAppContext).format(startDate);
+		String runName = mAppContext.getString(R.string.run_desc, startDateStr);
+		
+		run.setRunName(runName);
+		run.setTotalMetre(0);
+		run.setElapsedTime(0);
+		run.setTotalTripPoint(0);
+		run.setStartDate(startDate);
+		
 		run.setRunId(mDatabaseHelper.insertRun(run));
 		
 		mPref.edit()
@@ -74,6 +105,7 @@ public class RunManager {
 	
 	public void startCurrentRun(Run run){
 		
+		
 		mPref.edit()
 			.putLong(PREF_CURRENT_RUN_ID, run.getRunId())
 			.commit();
@@ -81,15 +113,138 @@ public class RunManager {
 		startLocationUpdates();		
 	}
 	
-	public void stopRun(){
+	public boolean stopRun(){
 
+		if(isTrackingRun() == false){
+			Log.e(TAG, "There is no tracking run,can't stop.");
+			return false;
+		}
+		//停止对GPS数据的接收
 		stopLocationUpdates();
+		
+		//更新run 的状态
+		long runId = mPref.getLong(PREF_CURRENT_RUN_ID, -1);
+		Run run = queryRunById(runId);
+		
+		run.setRunState(Run.STATE_NORMAL);
+		
+		LocationDataCursor locationDataCursor = queryLocationDataListByRunId(runId);
+		List<LatLng> pointList = new ArrayList<LatLng>();
+		
+		locationDataCursor.moveToFirst();
+		while(!locationDataCursor.isAfterLast()){
+			LocationData locationData = locationDataCursor.getLocationData();
+			
+			LatLng sourceLatLng = new LatLng(locationData.getLatitude()
+					, locationData.getLongitude());
+			
+			// 将GPS设备采集的原始GPS坐标转换成百度坐标  
+			CoordinateConverter converter  = new CoordinateConverter();  
+			converter.from(CoordType.GPS);  
+			// sourceLatLng待转换坐标  
+			converter.coord(sourceLatLng);  
+			LatLng desLatLng = converter.convert();
+			
+			pointList.add(desLatLng);
+
+			locationDataCursor.moveToNext();
+		}
+		
+		//如果有最后一个节点就移到最后一个节点，取得elapsedTime
+		if(locationDataCursor.moveToLast()){
+			LocationData locationData = locationDataCursor.getLocationData();
+			Date timestamp = locationData.getTimestamp();
+			
+			Date startDate = run.getStartDate();
+			long elapsedTime = timestamp.getTime() - startDate.getTime();
+			
+			run.setElapsedTime(elapsedTime);
+		}
+		
+		locationDataCursor.close();
+		
+		//如果记录的节点为0，或为1，就删除当前记录的地理数据及旅程，数据无效
+		if(pointList.size() == 0){
+			Toast.makeText(mAppContext,R.string.cant_show_total_metre_no_location_data
+					,Toast.LENGTH_LONG).show();
+			deleteLocationDataListByRunId(run.getRunId());
+			deleteRunById(run.getRunId());
+			return false;
+		}else
+			if(pointList.size() == 1){
+
+				Toast.makeText(mAppContext,R.string.cant_show_total_metre_need_more_location_data
+						,Toast.LENGTH_LONG).show();
+				deleteLocationDataListByRunId(run.getRunId());
+				deleteRunById(run.getRunId());
+				return false;
+			}
+		
+		//设置总记录节点数
+		run.setTotalTripPoint(pointList.size());
+
+		//去除重复的节点得到的最终旅程点
+		//但长期停留在一个位置时，就会产生很多重复的节点，去掉这些重复的节点
+		List<LatLng> finalPointList = new ArrayList<LatLng>();
+		LatLng lastLL = pointList.get(0);
+		finalPointList.add(lastLL);
+		for(int i=1;i<pointList.size();i++){
+			LatLng pointLL = pointList.get(i);
+			double distance = DistanceUtil.getDistance(lastLL, pointLL);
+			Log.i(TAG, "i:"+i+"-- distance:"+distance);
+						
+			if(distance > RunMapFragment.MIN_TRIP_DISTANCE){
+				lastLL = pointLL;
+				finalPointList.add(lastLL);
+			}else{
+				//如果小于最小间距，那就忽略当前节点，说明有可能停留在一个地方
+				if(i == pointList.size()-1){
+					lastLL = pointLL;
+					finalPointList.add(lastLL);
+				}
+			}
+		}
+		
+		//开始统计总里程
+		double totalDistance = 0;
+		
+		for(int i=1;i<finalPointList.size();i++){
+			LatLng previousLL = finalPointList.get(i-1);
+			LatLng pointLL = finalPointList.get(i);
+			double distance = DistanceUtil.getDistance(previousLL, pointLL);
+			Log.i(TAG, "i:"+i+"-- distance:"+distance);
+			totalDistance += distance;
+		}
+		Log.i(TAG, "total distance:"+totalDistance);
+		
+		long totalMetre = (long)totalDistance;
+		run.setTotalMetre(totalMetre);
+		
+		updateRun(run);		
 		
 		mPref.edit()
 			.remove(PREF_CURRENT_RUN_ID)
-			.commit();		
+			.commit();	
+		
+		return true;
 	}
 	
+	private void updateRun(Run run) {
+
+		mDatabaseHelper.updateRun(run);
+	}
+
+	private void deleteRunById(long runId) {
+
+		mDatabaseHelper.deleteRunById(runId);
+	}
+
+	private void deleteLocationDataListByRunId(long runId) {
+
+		long affectedRow = mDatabaseHelper.deleteLocationDataByRunId(runId);
+		Log.d(TAG, "deleteLocationDataListByRunId--affected row:"+affectedRow);
+	}
+
 	public void startLocationUpdates(){
 		
 		String provider = LocationManager.GPS_PROVIDER;
@@ -146,7 +301,7 @@ public class RunManager {
 		long currentRunId = mPref.getLong(PREF_CURRENT_RUN_ID, -1);
 		if(currentRunId != -1){
 			locationData.setFKRunId(currentRunId);
-			mDatabaseHelper.insertLocation(locationData);
+			mDatabaseHelper.insertLocationData(locationData);
 		}else{
 			Log.e(TAG, "Location received with no tracking run: ignore");
 		}

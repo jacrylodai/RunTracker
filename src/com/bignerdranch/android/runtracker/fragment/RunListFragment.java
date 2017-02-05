@@ -30,6 +30,7 @@ import com.bignerdranch.android.runtracker.activity.RunActivity;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.loader.RunListCursorLoader;
+import com.bignerdranch.android.runtracker.manager.RunManager;
 
 public class RunListFragment extends Fragment {
 	
@@ -44,6 +45,8 @@ public class RunListFragment extends Fragment {
 	private Button mButtonStart,mButtonStop;
 	
 	private TextView mTVElapsedTime,mTVTotalMetre;
+	
+	private RunManager mRunManager;
 	
 	private LoaderCallbacks<Cursor> mRunListLoaderCallbacks = 
 			new LoaderCallbacks<Cursor>() {
@@ -75,6 +78,8 @@ public class RunListFragment extends Fragment {
 		super.onCreate(savedInstanceState);		
 		setHasOptionsMenu(true);
 		
+		mRunManager = RunManager.getInstance(getActivity());
+		
 		getLoaderManager().initLoader(LOADER_LOAD_RUN_LIST, null, mRunListLoaderCallbacks);
 	}
 	
@@ -102,6 +107,39 @@ public class RunListFragment extends Fragment {
 				Intent intent = new Intent(getActivity(),RunActivity.class);
 				intent.putExtra(RunActivity.EXTRA_RUN_ID, id);
 				startActivity(intent);
+			}
+		});
+		
+		mButtonStart.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+
+				Log.i(TAG, "press start button");
+				if(mRunManager.isTrackingRun()){
+					
+					Log.e(TAG, "current is already tracking run.can't execute two task");
+				}else{
+
+					mRunManager.startNewRun();
+				}
+			}
+		});
+		
+		mButtonStop.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				Log.i(TAG, "press stop button");
+				if(mRunManager.isTrackingRun()){
+					
+					long runId = mRunManager.getCurrentTrackingRunId();
+					boolean isSuccess = mRunManager.stopRun();
+				}else{
+
+					Log.e(TAG, "can't stop.There is no tracking run");
+				}
 			}
 		});
 		
@@ -169,12 +207,7 @@ public class RunListFragment extends Fragment {
 			Run run = mCursor.getRun();
 			
 			TextView tvStartDate = (TextView)view;
-			Date startDate = run.getStartDate();
-			String startDateStr = 
-					DateFormat.getMediumDateFormat(context).format(startDate) + " " +
-					DateFormat.getTimeFormat(context).format(startDate);
-			String cellText = context.getString(R.string.run_desc, startDateStr);
-			tvStartDate.setText(cellText);
+			tvStartDate.setText(run.getRunName());
 		}
 
 		@Override
