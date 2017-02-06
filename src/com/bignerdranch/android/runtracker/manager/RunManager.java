@@ -27,6 +27,7 @@ import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.fragment.ConfigFragment;
 import com.bignerdranch.android.runtracker.fragment.RunMapFragment;
+import com.bignerdranch.android.runtracker.util.LocationUtils;
 
 public class RunManager {
 	
@@ -39,6 +40,9 @@ public class RunManager {
 	
 	//地理位置更新的最小间距
 	private static final int MIN_DISTANCE = 2;
+
+	//统计旅程记录点之间的最小间距
+	public static final double MIN_TRIP_DISTANCE = 20;
 	
 	private static final String PREF_CURRENT_RUN_ID = "currentRunId";
 
@@ -138,14 +142,9 @@ public class RunManager {
 			LatLng sourceLatLng = new LatLng(locationData.getLatitude()
 					, locationData.getLongitude());
 			
-			// 将GPS设备采集的原始GPS坐标转换成百度坐标  
-			CoordinateConverter converter  = new CoordinateConverter();  
-			converter.from(CoordType.GPS);  
-			// sourceLatLng待转换坐标  
-			converter.coord(sourceLatLng);  
-			LatLng desLatLng = converter.convert();
+			LatLng destLatLng = LocationUtils.convertGPSToBaiduPoint(sourceLatLng);
 			
-			pointList.add(desLatLng);
+			pointList.add(destLatLng);
 
 			locationDataCursor.moveToNext();
 		}
@@ -193,7 +192,7 @@ public class RunManager {
 			double distance = DistanceUtil.getDistance(lastLL, pointLL);
 			Log.i(TAG, "i:"+i+"-- distance:"+distance);
 						
-			if(distance > RunMapFragment.MIN_TRIP_DISTANCE){
+			if(distance > MIN_TRIP_DISTANCE){
 				lastLL = pointLL;
 				finalPointList.add(lastLL);
 			}else{

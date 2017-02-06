@@ -10,6 +10,8 @@
     <!-- RunListActivity -->    
     <!-- layout -->
     <string name="run_desc">Run record:%s</string>
+    <string name="run_list_trip_point">Trip Point:</string>
+    <string name="run_list_total_metre">Total Metre:</string>
     <!-- menu -->
     <string name="new_run">New Run</string>
     <string name="config">Config</string>

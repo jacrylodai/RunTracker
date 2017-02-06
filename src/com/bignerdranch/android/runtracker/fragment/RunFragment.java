@@ -393,7 +393,7 @@ public class RunFragment extends Fragment {
 			double distance = DistanceUtil.getDistance(lastLL, pointLL);
 			Log.i(TAG, "i:"+i+"-- distance:"+distance);
 						
-			if(distance > RunMapFragment.MIN_TRIP_DISTANCE){
+			if(distance > RunManager.MIN_TRIP_DISTANCE){
 				lastLL = pointLL;
 				finalPointList.add(lastLL);
 			}else{
