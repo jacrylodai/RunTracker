@@ -35,3 +35,4 @@
 *软件启动，离开，timeClock,locationReceiver的开启与关闭
 *删除RunFragment里面多余的控件和功能
 *修改bug：如果设置Fragment保留，那么在Fragment旋转时不能更新它的视图，需要检测isVisisble
+*修改bug，loader在onStart里只能使用restartLoader

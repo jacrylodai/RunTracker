@@ -43,7 +43,7 @@ public class RunManager {
 	private static final int MIN_DISTANCE = 2;
 
 	//统计旅程记录点之间的最小间距
-	public static final double MIN_TRIP_DISTANCE = 40;
+	public static final double MIN_TRIP_DISTANCE = 50;
 	
 	private static final String PREF_CURRENT_RUN_ID = "currentRunId";
 
@@ -190,17 +190,17 @@ public class RunManager {
 		return true;
 	}
 	
-	private void updateRun(Run run) {
+	public void updateRun(Run run) {
 
 		mDatabaseHelper.updateRun(run);
 	}
 
-	private void deleteRunById(long runId) {
+	public void deleteRunById(long runId) {
 
 		mDatabaseHelper.deleteRunById(runId);
 	}
 
-	private void deleteLocationDataListByRunId(long runId) {
+	public void deleteLocationDataListByRunId(long runId) {
 
 		long affectedRow = mDatabaseHelper.deleteLocationDataByRunId(runId);
 		Log.d(TAG, "deleteLocationDataListByRunId--affected row:"+affectedRow);

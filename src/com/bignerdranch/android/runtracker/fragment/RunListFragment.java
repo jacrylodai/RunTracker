@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
@@ -57,6 +58,10 @@ public class RunListFragment extends Fragment {
 	private static final int LOADER_LOAD_RUN_LIST = 1;
 
 	private static final int LOADER_LOAD_LOCATION_DATA_LIST = 2;
+	
+	private static final int REQUEST_CODE_UPDATE_RUN_NAME = 1;
+	
+	private static final String DIALOG_UPDATE_RUN_NAME = "dialogUpdateRunName";
 	
 	private ListView mLVRunList;
 	
@@ -191,7 +196,8 @@ public class RunListFragment extends Fragment {
 
 				@Override
 				public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-					
+
+					Log.i(TAG, "mLocationDataListLoaderCallbacks--onCreateLoader");
 					long runId = args.getLong(ARG_RUN_ID, -1);
 					return new LocationDataListLoader(getActivity(), runId);
 				}
@@ -200,6 +206,7 @@ public class RunListFragment extends Fragment {
 				public void onLoadFinished(Loader<Cursor> loader,
 						Cursor cursor) {
 					
+					Log.i(TAG, "mLocationDataListLoaderCallbacks--onLoadFinished");
 					LocationDataCursor locationDataCursor = (LocationDataCursor) cursor;
 					
 					List<LatLng> pointList = new ArrayList<LatLng>();
@@ -258,6 +265,8 @@ public class RunListFragment extends Fragment {
 
 				@Override
 				public void onLoaderReset(Loader<Cursor> loader) {
+
+					Log.i(TAG, "mLocationDataListLoaderCallbacks--onLoaderReset");
 					//do nothing
 				}
 	};
@@ -269,8 +278,6 @@ public class RunListFragment extends Fragment {
 		super.onCreate(savedInstanceState);		
 		setHasOptionsMenu(true);
 		
-		mIsRunningTimeClock = true;
-		
 		mRunManager = RunManager.getInstance(getActivity());
 		mIsTracking = mRunManager.isTrackingRun();
 		if(mIsTracking){
@@ -278,14 +285,7 @@ public class RunListFragment extends Fragment {
 			mRun = mRunManager.queryRunById(runId);			
 		}
 		
-		getLoaderManager().initLoader(LOADER_LOAD_RUN_LIST, null, mRunListLoaderCallbacks);		
-	}
-	
-	@Override
-	public void onDestroy() {
-		
-		
-		super.onDestroy();
+		getLoaderManager().initLoader(LOADER_LOAD_RUN_LIST, null, mRunListLoaderCallbacks);
 	}
 	
 	@Override
@@ -297,6 +297,7 @@ public class RunListFragment extends Fragment {
 		getActivity().registerReceiver(locationReceiver, intentFilter);
 		
 		mIsRunningTimeClock = true;
+		updateClockUI();
 		
 		if(mIsTracking){
 
@@ -304,7 +305,7 @@ public class RunListFragment extends Fragment {
 			
 			Bundle args = new Bundle();
 			args.putLong(ARG_RUN_ID, mRun.getRunId());
-			getLoaderManager().initLoader(LOADER_LOAD_LOCATION_DATA_LIST, args
+			getLoaderManager().restartLoader(LOADER_LOAD_LOCATION_DATA_LIST, args
 					, mLocationDataListLoaderCallbacks);
 			
 		}
@@ -376,13 +377,12 @@ public class RunListFragment extends Fragment {
 				Log.i(TAG, "press stop button");
 				if(mIsTracking){
 					
-					long runId = mRunManager.getCurrentTrackingRunId();
 					boolean isSuccess = mRunManager.stopRun();
-					if(isSuccess){
-						getLoaderManager().restartLoader(LOADER_LOAD_RUN_LIST, null
-								, mRunListLoaderCallbacks);						
+					if(isSuccess){						
+						showUpdateRunNameDialog();					
 					}
 					
+					Log.i(TAG, "stop still running the next");
 					mIsTracking = false;
 					updateButtonUI();
 					
@@ -436,6 +436,33 @@ public class RunListFragment extends Fragment {
 		}
 	}
 	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		
+		switch (requestCode) {
+		case REQUEST_CODE_UPDATE_RUN_NAME:
+			if(resultCode == Activity.RESULT_OK){
+				long runId = data.getLongExtra(UpdateRunNameFragment.EXTRA_RUN_ID,-1);
+				String runName = data.getStringExtra(UpdateRunNameFragment.EXTRA_RUN_NAME);
+				
+				Run run = mRunManager.queryRunById(runId);
+				run.setRunName(runName);
+				mRunManager.updateRun(run);
+			}else
+				if(resultCode == Activity.RESULT_CANCELED){
+					//cancel does not modify the run name
+				}
+
+			getLoaderManager().restartLoader(LOADER_LOAD_RUN_LIST, null
+					, mRunListLoaderCallbacks);	
+			break;
+
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+			break;
+		}
+	}
+	
 	private void updateButtonUI(){
 		
 		if(mIsTracking){
@@ -472,6 +499,17 @@ public class RunListFragment extends Fragment {
 		}else{
 			mTVElapsedTime.setText("00:00:00");
 		}
+	}
+	
+	private void showUpdateRunNameDialog(){
+			
+		FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+		
+		UpdateRunNameFragment updateRunNameFragment = 
+				UpdateRunNameFragment.newInstance(mRun.getRunId(),mRun.getRunName());
+		updateRunNameFragment.setTargetFragment(this, REQUEST_CODE_UPDATE_RUN_NAME);
+		
+		updateRunNameFragment.show(fragmentManager, DIALOG_UPDATE_RUN_NAME);
 	}
 	
 	private class RunCursorAdapter extends CursorAdapter{

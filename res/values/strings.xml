@@ -12,9 +12,14 @@
     <string name="run_desc">Run record:%s</string>
     <string name="run_list_trip_point">Trip Point:</string>
     <string name="run_list_total_metre">Total Metre:</string>
+    
+    <string name="update_run_name">Update Run Name</string>
     <!-- menu -->
     <string name="new_run">New Run</string>
     <string name="config">Config</string>
+    
+    <!-- back -->
+    <string name="does_not_input_run_name">You didn\'t input run name,The origin name will be used.</string>
     
     <!-- RunActivity -->
     <!-- layout -->
