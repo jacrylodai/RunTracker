@@ -56,6 +56,7 @@ import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCurs
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.loader.LocationDataListLoader;
 import com.bignerdranch.android.runtracker.manager.RunManager;
+import com.bignerdranch.android.runtracker.util.LocationUtils;
 
 public class RunMapFragment extends SupportMapFragment{
 
@@ -130,8 +131,6 @@ public class RunMapFragment extends SupportMapFragment{
 
 				@Override
 				public void onLoaderReset(Loader<Cursor> loader) {
-					mLocationDataCursor.close();
-					mLocationDataCursor = null;
 				}
 			};
 	
@@ -570,12 +569,7 @@ public class RunMapFragment extends SupportMapFragment{
 			LatLng sourceLatLng = new LatLng(locationData.getLatitude()
 					, locationData.getLongitude());
 			
-			// 将GPS设备采集的原始GPS坐标转换成百度坐标  
-			CoordinateConverter converter  = new CoordinateConverter();  
-			converter.from(CoordType.GPS);  
-			// sourceLatLng待转换坐标  
-			converter.coord(sourceLatLng);  
-			LatLng desLatLng = converter.convert();
+			LatLng desLatLng = LocationUtils.convertGPSToBaiduPoint(sourceLatLng);
 			
 			pointList.add(desLatLng);
 
@@ -597,27 +591,7 @@ public class RunMapFragment extends SupportMapFragment{
 				return;
 			}
 
-		//去除重复的节点得到的最终旅程点
-		//但长期停留在一个位置时，就会产生很多重复的节点，去掉这些重复的节点
-		mFinalPointList = new ArrayList<LatLng>();
-		LatLng lastLL = pointList.get(0);
-		mFinalPointList.add(lastLL);
-		for(int i=1;i<pointList.size();i++){
-			LatLng pointLL = pointList.get(i);
-			double distance = DistanceUtil.getDistance(lastLL, pointLL);
-			Log.i(TAG, "i:"+i+"-- distance:"+distance);
-						
-			if(distance > RunManager.MIN_TRIP_DISTANCE){
-				lastLL = pointLL;
-				mFinalPointList.add(lastLL);
-			}else{
-				
-				if(i == pointList.size()-1){
-					lastLL = pointLL;
-					mFinalPointList.add(lastLL);
-				}
-			}
-		}
+		mFinalPointList = LocationUtils.getFinalTripPoint(pointList);
 		
 		//用线把旅程点连接起来
 		OverlayOptions ooPolyline = new PolylineOptions().width(6)

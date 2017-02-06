@@ -119,8 +119,7 @@ public class RunFragment extends Fragment {
 
 				@Override
 				public void onLoaderReset(Loader<Cursor> loader) {
-					mLocationDataCursor.close();
-					mLocationDataCursor = null;
+					//do nothing
 				}
 			};
     

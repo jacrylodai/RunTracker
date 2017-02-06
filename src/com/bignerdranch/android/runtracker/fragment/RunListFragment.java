@@ -1,6 +1,8 @@
 package com.bignerdranch.android.runtracker.fragment;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,9 +36,11 @@ import com.baidu.mapapi.utils.DistanceUtil;
 import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.activity.ConfigActivity;
 import com.bignerdranch.android.runtracker.activity.RunActivity;
+import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCursor;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
+import com.bignerdranch.android.runtracker.loader.LocationDataListLoader;
 import com.bignerdranch.android.runtracker.loader.RunListCursorLoader;
 import com.bignerdranch.android.runtracker.manager.RunManager;
 import com.bignerdranch.android.runtracker.receiver.LocationReceiver;
@@ -45,12 +49,14 @@ import com.bignerdranch.android.runtracker.util.LocationUtils;
 public class RunListFragment extends Fragment {
 	
 	private static final String TAG = "RunListFragment";
+
+	private static final String ARG_RUN_ID = "RUN_ID";
 	
 	private static final int HANDLER_MESSAGE_UPDATE_CLOCK = 1;
 	
-	private static final int REQUEST_CODE_NEW_RUN = 1;
-	
 	private static final int LOADER_LOAD_RUN_LIST = 1;
+
+	private static final int LOADER_LOAD_LOCATION_DATA_LIST = 2;
 	
 	private ListView mLVRunList;
 	
@@ -78,6 +84,9 @@ public class RunListFragment extends Fragment {
 	//是否正在跟踪旅程
 	private boolean mIsTracking;
 	
+	//是否还可以运行计时器，只有在界面在显示时才运行计时器
+	private boolean mIsRunningTimeClock;
+	
 	private Handler handler = new Handler(){
 		
 		public void handleMessage(Message msg) {
@@ -99,7 +108,9 @@ public class RunListFragment extends Fragment {
 		@Override
 		public void run() {
 
-			while(mIsTracking){
+			while(mIsTracking && mIsRunningTimeClock){
+				
+				Log.i(TAG, "time clock running");
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -175,18 +186,88 @@ public class RunListFragment extends Fragment {
 				}
 	};
 	
+	private LoaderCallbacks<Cursor> mLocationDataListLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+
+				@Override
+				public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+					
+					long runId = args.getLong(ARG_RUN_ID, -1);
+					return new LocationDataListLoader(getActivity(), runId);
+				}
+
+				@Override
+				public void onLoadFinished(Loader<Cursor> loader,
+						Cursor cursor) {
+					
+					LocationDataCursor locationDataCursor = (LocationDataCursor) cursor;
+					
+					List<LatLng> pointList = new ArrayList<LatLng>();
+					
+					locationDataCursor.moveToFirst();
+					while(!locationDataCursor.isAfterLast()){
+						LocationData locationData = locationDataCursor.getLocationData();
+						
+						LatLng sourceLatLng = new LatLng(locationData.getLatitude()
+								, locationData.getLongitude());
+						
+						LatLng destLatLng = LocationUtils.convertGPSToBaiduPoint(sourceLatLng);
+						
+						pointList.add(destLatLng);
+
+						locationDataCursor.moveToNext();
+					}
+					
+					//如果记录的节点为0，或为1
+					if(pointList.size() == 0){
+						
+						mTripPoint = 0;
+						mTotalMetre = 0;
+						mLastFinalTripPoint = null;
+						updateRunInfoUI();
+						return;
+					}else
+						if(pointList.size() == 1){
+
+							mTripPoint = 1;
+							mTotalMetre = 0;
+							mLastFinalTripPoint = pointList.get(0);
+							updateRunInfoUI();
+							return;
+						}
+					
+					mTripPoint = pointList.size();
+					
+					List<LatLng> finalPointList = LocationUtils.getFinalTripPoint(pointList);
+					int size = finalPointList.size();
+					mLastFinalTripPoint = finalPointList.get(size-1);
+					
+					double totalDistance = LocationUtils.caculateTotalDistance(finalPointList);
+					mTotalMetre = (long) totalDistance;
+					
+					updateRunInfoUI();
+				}
+
+				@Override
+				public void onLoaderReset(Loader<Cursor> loader) {
+					//do nothing
+				}
+	};
+    
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);		
 		setHasOptionsMenu(true);
 		
+		mIsRunningTimeClock = true;
+		
 		mRunManager = RunManager.getInstance(getActivity());
 		mIsTracking = mRunManager.isTrackingRun();
-		
-		//注册监听器
-		IntentFilter intentFilter = new IntentFilter(RunManager.ACTION_LOCATION);
-		getActivity().registerReceiver(locationReceiver, intentFilter);
+		if(mIsTracking){
+			long runId = mRunManager.getCurrentTrackingRunId();
+			mRun = mRunManager.queryRunById(runId);			
+		}
 		
 		getLoaderManager().initLoader(LOADER_LOAD_RUN_LIST, null, mRunListLoaderCallbacks);		
 	}
@@ -194,9 +275,39 @@ public class RunListFragment extends Fragment {
 	@Override
 	public void onDestroy() {
 		
-		getActivity().unregisterReceiver(locationReceiver);
 		
 		super.onDestroy();
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+
+		//注册监听器
+		IntentFilter intentFilter = new IntentFilter(RunManager.ACTION_LOCATION);
+		getActivity().registerReceiver(locationReceiver, intentFilter);
+		
+		mIsRunningTimeClock = true;
+		
+		if(mIsTracking){
+
+			new Thread(mTimeClock).start();
+			
+			Bundle args = new Bundle();
+			args.putLong(ARG_RUN_ID, mRun.getRunId());
+			getLoaderManager().initLoader(LOADER_LOAD_LOCATION_DATA_LIST, args
+					, mLocationDataListLoaderCallbacks);
+			
+		}
+	}
+	
+	@Override
+	public void onStop() {
+
+		getActivity().unregisterReceiver(locationReceiver);
+		mIsRunningTimeClock = false;
+		
+		super.onStop();
 	}
 	
 	@Override
@@ -279,8 +390,11 @@ public class RunListFragment extends Fragment {
 		});
 		
 		updateButtonUI();
+		
 		if(mIsTracking){
-			
+
+			//启动计时器
+			new Thread(mTimeClock).start();
 		}else{
 			resetCurrentRunInfo();
 			updateRunInfoUI();

@@ -42,7 +42,7 @@ public class RunManager {
 	private static final int MIN_DISTANCE = 2;
 
 	//统计旅程记录点之间的最小间距
-	public static final double MIN_TRIP_DISTANCE = 20;
+	public static final double MIN_TRIP_DISTANCE = 40;
 	
 	private static final String PREF_CURRENT_RUN_ID = "currentRunId";
 
@@ -183,37 +183,10 @@ public class RunManager {
 		run.setTotalTripPoint(pointList.size());
 
 		//去除重复的节点得到的最终旅程点
-		//但长期停留在一个位置时，就会产生很多重复的节点，去掉这些重复的节点
-		List<LatLng> finalPointList = new ArrayList<LatLng>();
-		LatLng lastLL = pointList.get(0);
-		finalPointList.add(lastLL);
-		for(int i=1;i<pointList.size();i++){
-			LatLng pointLL = pointList.get(i);
-			double distance = DistanceUtil.getDistance(lastLL, pointLL);
-			Log.i(TAG, "i:"+i+"-- distance:"+distance);
-						
-			if(distance > MIN_TRIP_DISTANCE){
-				lastLL = pointLL;
-				finalPointList.add(lastLL);
-			}else{
-				//如果小于最小间距，那就忽略当前节点，说明有可能停留在一个地方
-				if(i == pointList.size()-1){
-					lastLL = pointLL;
-					finalPointList.add(lastLL);
-				}
-			}
-		}
+		List<LatLng> finalPointList = LocationUtils.getFinalTripPoint(pointList);
 		
 		//开始统计总里程
-		double totalDistance = 0;
-		
-		for(int i=1;i<finalPointList.size();i++){
-			LatLng previousLL = finalPointList.get(i-1);
-			LatLng pointLL = finalPointList.get(i);
-			double distance = DistanceUtil.getDistance(previousLL, pointLL);
-			Log.i(TAG, "i:"+i+"-- distance:"+distance);
-			totalDistance += distance;
-		}
+		double totalDistance = LocationUtils.caculateTotalDistance(finalPointList);
 		Log.i(TAG, "total distance:"+totalDistance);
 		
 		long totalMetre = (long)totalDistance;
@@ -255,7 +228,7 @@ public class RunManager {
 		}
 		
 		Log.i(TAG, "using gps:"+provider);
-		Toast.makeText(mAppContext, "using gps:"+provider, Toast.LENGTH_LONG).show();
+//		Toast.makeText(mAppContext, "using gps:"+provider, Toast.LENGTH_LONG).show();
 		
 		PendingIntent intent = getLocationPendingIntent(true);
 		
