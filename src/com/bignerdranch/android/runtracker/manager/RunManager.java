@@ -155,7 +155,6 @@ public class RunManager {
 		if(pointList.size() == 0){
 			Toast.makeText(mAppContext,R.string.cant_show_total_metre_no_location_data
 					,Toast.LENGTH_LONG).show();
-			deleteLocationDataListByRunId(run.getRunId());
 			deleteRunById(run.getRunId());
 			return false;
 		}else
@@ -163,7 +162,6 @@ public class RunManager {
 
 				Toast.makeText(mAppContext,R.string.cant_show_total_metre_need_more_location_data
 						,Toast.LENGTH_LONG).show();
-				deleteLocationDataListByRunId(run.getRunId());
 				deleteRunById(run.getRunId());
 				return false;
 			}
@@ -197,13 +195,10 @@ public class RunManager {
 
 	public void deleteRunById(long runId) {
 
-		mDatabaseHelper.deleteRunById(runId);
-	}
-
-	public void deleteLocationDataListByRunId(long runId) {
-
 		long affectedRow = mDatabaseHelper.deleteLocationDataByRunId(runId);
 		Log.d(TAG, "deleteLocationDataListByRunId--affected row:"+affectedRow);
+		
+		mDatabaseHelper.deleteRunById(runId);
 	}
 
 	public void startLocationUpdates(){

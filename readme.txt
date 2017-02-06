@@ -37,3 +37,4 @@
 *修改bug：如果设置Fragment保留，那么在Fragment旋转时不能更新它的视图，需要检测isVisisble
 *可以修改旅途名称，修改bug，loader在onStart里只能使用restartLoader
 *修改list item的布局
+*完成删除旅程功能

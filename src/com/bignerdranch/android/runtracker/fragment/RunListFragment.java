@@ -36,6 +36,7 @@ import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.activity.ConfigActivity;
+import com.bignerdranch.android.runtracker.activity.DeleteRunItemsActivity;
 import com.bignerdranch.android.runtracker.activity.RunActivity;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCursor;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
@@ -49,7 +50,7 @@ import com.bignerdranch.android.runtracker.util.LocationUtils;
 
 public class RunListFragment extends Fragment {
 	
-	private static final String TAG = "RunListFragment";
+	private static final String TAG = RunListFragment.class.getSimpleName();
 
 	private static final String ARG_RUN_ID = "RUN_ID";
 	
@@ -60,6 +61,8 @@ public class RunListFragment extends Fragment {
 	private static final int LOADER_LOAD_LOCATION_DATA_LIST = 2;
 	
 	private static final int REQUEST_CODE_UPDATE_RUN_NAME = 1;
+	
+	private static final int REQUEST_CODE_DELETE_RUN_ITEMS = 2;
 	
 	private static final String DIALOG_UPDATE_RUN_NAME = "dialogUpdateRunName";
 	
@@ -284,8 +287,6 @@ public class RunListFragment extends Fragment {
 			long runId = mRunManager.getCurrentTrackingRunId();
 			mRun = mRunManager.queryRunById(runId);			
 		}
-		
-		getLoaderManager().initLoader(LOADER_LOAD_RUN_LIST, null, mRunListLoaderCallbacks);
 	}
 	
 	@Override
@@ -397,6 +398,9 @@ public class RunListFragment extends Fragment {
 				}
 			}
 		});
+
+		getLoaderManager().initLoader(LOADER_LOAD_RUN_LIST, null
+				, mRunListLoaderCallbacks);
 		
 		updateButtonUI();
 		
@@ -431,6 +435,12 @@ public class RunListFragment extends Fragment {
 			startActivity(configIntent);
 			return true;
 
+		case R.id.menu_item_delete_run_items:
+			
+			Intent deleteRunItemsIntent = new Intent(getActivity(),DeleteRunItemsActivity.class);
+			startActivityForResult(deleteRunItemsIntent, REQUEST_CODE_DELETE_RUN_ITEMS);
+			return true;
+			
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -457,6 +467,17 @@ public class RunListFragment extends Fragment {
 					, mRunListLoaderCallbacks);	
 			break;
 
+		case REQUEST_CODE_DELETE_RUN_ITEMS:
+			
+			Log.i(TAG, "onActivityResult--REQUEST_CODE_DELETE_RUN_ITEMS");
+			Log.i(TAG, "resultCode:"+resultCode);
+			
+			if(resultCode == Activity.RESULT_OK){
+				getLoaderManager().restartLoader(LOADER_LOAD_RUN_LIST, null
+						, mRunListLoaderCallbacks);	
+			}
+			break;
+			
 		default:
 			super.onActivityResult(requestCode, resultCode, data);
 			break;

@@ -11,4 +11,11 @@
         app:showAsAction="ifRoom|withText"
         />
     
+    <item 
+        android:id="@+id/menu_item_delete_run_items"
+        android:icon="@drawable/ic_menu_delete"
+        android:title="@string/delete_run_items"
+        app:showAsAction="ifRoom|withText"
+        />
+    
 </menu>

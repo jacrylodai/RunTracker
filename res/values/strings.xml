@@ -19,6 +19,7 @@
     <!-- menu -->
     <string name="new_run">New Run</string>
     <string name="config">Config</string>
+    <string name="delete_run_items">Delete Run Items</string>
     
     <!-- back -->
     <string name="does_not_input_run_name">You didn\'t input run name,The origin name will be used.</string>
@@ -61,5 +62,15 @@
     <!-- layout -->
     <string name="record_time_title">Record time (Second)</string>
     <string name="record_time_desc">The software will record current location every %d second.</string>
+    
+    <!-- DeleteRunItemsActivity -->
+    <!-- layout -->
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_description">Please select the items you want to delete.</string>
+    <!-- menu -->
+    <!-- back -->
+    <string name="no_items_are_been_selected">Can\'t delete.No items are been selected.</string>
+    <string name="delete_success">Delete Success.</string>
     
 </resources>
