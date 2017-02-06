@@ -12,6 +12,8 @@
     <string name="run_desc">Run record:%s</string>
     <string name="run_list_trip_point">Trip Point:</string>
     <string name="run_list_total_metre">Total Metre:</string>
+    <string name="start">Start</string>
+    <string name="stop">stop</string>
     
     <string name="update_run_name">Update Run Name</string>
     <!-- menu -->
@@ -27,7 +29,7 @@
     <string name="started">Started:</string>
     <string name="elapsed_time">Elapsed Time:</string>
     <string name="total_trip_point">Total trip point:</string>
-    <string name="total_metre">Total Metre(m):</string>
+    <string name="total_metre">Total Metre:</string>
     <string name="show_map">Show Map</string>
     <!-- back -->
     <string name="cant_show_total_metre_no_location_data">Can\'t show total metre,There is no location data!</string>    

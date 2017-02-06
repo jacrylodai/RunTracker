@@ -526,8 +526,17 @@ public class RunListFragment extends Fragment {
 
 			Run run = mCursor.getRun();
 			
-			TextView tvRunName = (TextView)view;
+			TextView tvRunName = (TextView) view.findViewById(R.id.tv_run_name);
+			TextView tvDurationTime = (TextView) view.findViewById(R.id.tv_duration_time);
+			TextView tvTotalMetre = (TextView) view.findViewById(R.id.tv_total_metre);
+			
 			tvRunName.setText(run.getRunName());
+			
+			int durationSeconds = (int) (run.getElapsedTime()/1000);
+			String durationStr = Run.formatDuration(durationSeconds);
+			tvDurationTime.setText(durationStr);
+			
+			tvTotalMetre.setText( String.valueOf(run.getTotalMetre()) );
 		}
 
 		@Override
@@ -536,7 +545,7 @@ public class RunListFragment extends Fragment {
 			LayoutInflater layoutInflater = 
 					(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View view = 
-					layoutInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+					layoutInflater.inflate(R.layout.view_run_list_item, parent, false);
 			return view;
 		}
 		

@@ -10,25 +10,27 @@
     <!-- RunListActivity -->    
     <!-- layout -->
     <string name="run_desc">旅程记录:%s</string>
+    <string name="run_list_trip_point">所有旅程节点:</string>
+    <string name="run_list_total_metre">总路程(米):</string>
+    <string name="start">启动</string>
+    <string name="stop">停止</string>
+    
+    <string name="update_run_name">修改旅程名称</string>
     <!-- menu -->
     <string name="new_run">新建旅程</string>
     <string name="config">设置</string>
     
+    <!-- back -->
+    <string name="does_not_input_run_name">你没有输入旅程名称，原来的旅程名称将会被使用</string>
+    
     <!-- RunActivity -->
     <!-- layout -->
-    <string name="current_run_status">旅程状态:</string>
+    <string name="run_name">旅程名称:</string>
     <string name="started">创建日期:</string>
-    <string name="latitude">纬度:</string>
-    <string name="longitude">经度:</string>
-    <string name="accuracy">精度(米):</string>
-    <string name="altitude">高度(米):</string>
     <string name="elapsed_time">记录时长:</string>
+    <string name="total_trip_point">所有旅程节点:</string>
     <string name="total_metre">总路程(米):</string>
-    <string name="start">开始</string>
-    <string name="stop">停止</string>    
     <string name="show_map">在地图上显示</string>
-    <string name="string_tracking_current_run">你正在记录当前旅程!</string>
-    <string name="string_not_tracking_current_run">你没有记录当前旅程!</string>
     <!-- back -->    
     <string name="cant_show_total_metre_no_location_data">无法显示总路程，没有找到旅程节点数据!</string>    
     <string name="cant_show_total_metre_need_more_location_data">无法显示总路程，只有一条旅程节点数据，至少需要2条数据!</string>    
