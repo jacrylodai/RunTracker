@@ -33,3 +33,4 @@
 *完成开始和停止部分功能
 *完成定时器，旅程节点数，总路程
 *软件启动，离开，timeClock,locationReceiver的开启与关闭
+*删除RunFragment里面多余的控件和功能

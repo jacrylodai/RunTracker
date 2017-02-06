@@ -68,9 +68,6 @@ public class RunListFragment extends Fragment {
 	
 	//当前正在被记录的旅程
 	private Run mRun;
-
-	//记录时间
-	private long mElapsedTime;
 	
 	//记录节点数
 	private int mTripPoint;
@@ -441,7 +438,6 @@ public class RunListFragment extends Fragment {
 	private void resetCurrentRunInfo(){
 		
 		mRun = null;
-		mElapsedTime = 0;
 		mTripPoint = 0;
 		mTotalMetre = 0;
 		mLastFinalTripPoint = null;
@@ -480,8 +476,8 @@ public class RunListFragment extends Fragment {
 
 			Run run = mCursor.getRun();
 			
-			TextView tvStartDate = (TextView)view;
-			tvStartDate.setText(run.getRunName());
+			TextView tvRunName = (TextView)view;
+			tvRunName.setText(run.getRunName());
 		}
 
 		@Override

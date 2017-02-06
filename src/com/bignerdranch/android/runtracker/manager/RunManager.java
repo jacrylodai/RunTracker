@@ -27,6 +27,7 @@ import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.fragment.ConfigFragment;
 import com.bignerdranch.android.runtracker.fragment.RunMapFragment;
+import com.bignerdranch.android.runtracker.util.DateUtils;
 import com.bignerdranch.android.runtracker.util.LocationUtils;
 
 public class RunManager {
@@ -85,9 +86,7 @@ public class RunManager {
 		run.setRunState(Run.STATE_CURRENT_TRACKING);
 		
 		Date startDate = new Date();
-		String startDateStr = 
-				DateFormat.getMediumDateFormat(mAppContext).format(startDate) + " " +
-				DateFormat.getTimeFormat(mAppContext).format(startDate);
+		String startDateStr = DateUtils.formatFullDate(mAppContext, startDate);
 		String runName = mAppContext.getString(R.string.run_desc, startDateStr);
 		
 		run.setRunName(runName);
@@ -106,17 +105,7 @@ public class RunManager {
 		
 		return run;
 	}
-	
-	public void startCurrentRun(Run run){
 		
-		
-		mPref.edit()
-			.putLong(PREF_CURRENT_RUN_ID, run.getRunId())
-			.commit();
-		
-		startLocationUpdates();		
-	}
-	
 	public boolean stopRun(){
 
 		if(isTrackingRun() == false){
