@@ -91,7 +91,9 @@ public class RunListFragment extends Fragment {
 			switch (msg.what) {
 			case HANDLER_MESSAGE_UPDATE_CLOCK:
 				
-				updateClockUI();
+				if(isVisible()){
+					updateClockUI();
+				}
 				break;
 
 			default:
@@ -147,7 +149,9 @@ public class RunListFragment extends Fragment {
 				}
 			}
 			
-			updateRunInfoUI();
+			if(isVisible()){
+				updateRunInfoUI();
+			}
     	};
     	
     	protected void onProviderEnabledChange(boolean providerEnabled) {
@@ -220,7 +224,10 @@ public class RunListFragment extends Fragment {
 						mTripPoint = 0;
 						mTotalMetre = 0;
 						mLastFinalTripPoint = null;
-						updateRunInfoUI();
+						
+						if(isVisible()){
+							updateRunInfoUI();
+						}
 						return;
 					}else
 						if(pointList.size() == 1){
@@ -228,7 +235,10 @@ public class RunListFragment extends Fragment {
 							mTripPoint = 1;
 							mTotalMetre = 0;
 							mLastFinalTripPoint = pointList.get(0);
-							updateRunInfoUI();
+
+							if(isVisible()){
+								updateRunInfoUI();
+							}
 							return;
 						}
 					
@@ -241,7 +251,9 @@ public class RunListFragment extends Fragment {
 					double totalDistance = LocationUtils.caculateTotalDistance(finalPointList);
 					mTotalMetre = (long) totalDistance;
 					
-					updateRunInfoUI();
+					if(isVisible()){
+						updateRunInfoUI();
+					}
 				}
 
 				@Override

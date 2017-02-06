@@ -36,8 +36,6 @@ public class RunFragment extends Fragment {
     
     private Run mRun;
     
-    private LocationData mLastLocationData;
-    
     private LoaderCallbacks<Run> mRunLoaderCallbacks = 
     		new LoaderCallbacks<Run>() {
 
@@ -76,7 +74,6 @@ public class RunFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setRetainInstance(true);
 	}
 	
 	@Override
