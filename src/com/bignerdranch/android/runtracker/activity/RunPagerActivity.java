@@ -2,6 +2,8 @@ package com.bignerdranch.android.runtracker.activity;
 
 import java.util.ArrayList;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -27,11 +29,17 @@ public class RunPagerActivity extends ActionBarActivity {
 	
 	private ArrayList<Long> mRunIdList;
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_run_pager);
+
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+			getActionBar().setSubtitle(R.string.run_detail);
+		}
+		
 		mVPRunFragmentContainer = (ViewPager) findViewById(R.id.vp_run_fragment_container);
 		
 		int runIdPosition = getIntent().getIntExtra(EXTRA_RUN_ID_POSITION, -1);

@@ -19,7 +19,7 @@
     <!-- menu -->
     <string name="new_run">New Run</string>
     <string name="config">Config</string>
-    <string name="delete_run_items">Delete Run Items</string>
+    <string name="delete_run">Delete Run</string>
     
     <!-- back -->
     <string name="does_not_input_run_name">You didn\'t input run name,The origin name will be used.</string>
@@ -37,7 +37,7 @@
     <!-- back -->
     <string name="cant_show_total_metre_no_location_data">Can\'t show total metre,There is no location data!</string>    
     <string name="cant_show_total_metre_need_more_location_data">Can\'t show total metre,There is only one location data,need more!</string>    
-    
+    <string name="run_detail">Run Detail</string>
     
     <!-- RunMapActivity -->
     <!-- layout -->
@@ -64,6 +64,9 @@
     <!-- layout -->
     <string name="record_time_title">Record time (Second)</string>
     <string name="record_time_desc">The software will record current location every %d second.</string>
+    <!-- menu -->
+    <!-- back -->
+    <string name="config_config">Config</string>
     
     <!-- DeleteRunItemsActivity -->
     <!-- layout -->
@@ -74,5 +77,6 @@
     <!-- back -->
     <string name="no_items_are_been_selected">Can\'t delete.No items are been selected.</string>
     <string name="delete_success">Delete Success.</string>
+    <string name="dri_delete_run">Delete Run</string>
     
 </resources>

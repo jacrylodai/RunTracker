@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.util.Log;
@@ -23,7 +22,6 @@ import android.widget.TextView;
 
 import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.activity.RunMapActivity;
-import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.loader.RunLoader;
 import com.bignerdranch.android.runtracker.util.DateUtils;
