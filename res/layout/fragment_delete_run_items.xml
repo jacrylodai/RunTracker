@@ -9,7 +9,13 @@
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:text="@string/delete_description"
-        android:textSize="20sp"
+        android:textSize="22sp"
+        />
+    
+    <View 
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#BAE3FF"
         />
     
     <ListView 
@@ -18,6 +24,12 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         ></ListView>
+    
+    <View 
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#BAE3FF"
+        />
     
     <LinearLayout 
         android:layout_width="match_parent"
@@ -31,6 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/delete"
+            android:drawableLeft="@drawable/ic_menu_delete"
             />
         
         <Button 
@@ -39,6 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/cancel"
+            android:drawableLeft="@drawable/ic_menu_revert"
             />
         
     </LinearLayout>

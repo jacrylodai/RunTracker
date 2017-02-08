@@ -1,20 +1,19 @@
 package com.bignerdranch.android.runtracker.activity;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 
 import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.fragment.RunFragment;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
-
-public class RunPagerActivity extends FragmentActivity {
+public class RunPagerActivity extends ActionBarActivity {
 	
 	private static final String TAG = RunPagerActivity.class.getSimpleName();
 

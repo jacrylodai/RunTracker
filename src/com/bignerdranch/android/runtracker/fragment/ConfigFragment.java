@@ -10,6 +10,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,6 +41,8 @@ public class ConfigFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		setHasOptionsMenu(true);
+		
 		mPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 	}
 
@@ -62,6 +67,27 @@ public class ConfigFragment extends Fragment {
 		updateConfigUI();
 		
 		return view;
+	}
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.public_delete_options, menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		switch (item.getItemId()) {
+
+		case R.id.menu_item_back:
+			
+			getActivity().finish();
+			return true;
+			
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 	
 	private void updateConfigUI(){

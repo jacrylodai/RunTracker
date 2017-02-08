@@ -58,10 +58,6 @@
         <activity 
             android:name="com.bignerdranch.android.runtracker.activity.RunPagerActivity"
             >
-            <meta-data 
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.bignerdranch.android.runtracker.activity.RunListActivity"
-                />            
         </activity>
         
         <activity 
