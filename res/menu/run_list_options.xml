@@ -4,13 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     >
 
-    <item
-        android:id="@+id/menu_item_config"
-        android:icon="@drawable/ic_menu_preferences"
-        android:title="@string/config"
-        app:showAsAction="ifRoom|withText"
-        />
-    
     <item 
         android:id="@+id/menu_item_delete_run_items"
         android:icon="@drawable/ic_menu_delete"
@@ -18,4 +11,11 @@
         app:showAsAction="ifRoom|withText"
         />
     
+    <item
+        android:id="@+id/menu_item_config"
+        android:icon="@drawable/ic_menu_preferences"
+        android:title="@string/config"
+        app:showAsAction="ifRoom|withText"
+        />
+        
 </menu>

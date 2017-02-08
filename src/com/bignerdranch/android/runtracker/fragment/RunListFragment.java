@@ -7,7 +7,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.IntentFilter; 
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
@@ -235,9 +235,7 @@ public class RunListFragment extends Fragment {
 						mTotalMetre = 0;
 						mLastFinalTripPoint = null;
 						
-						if(isVisible()){
-							updateRunInfoUI();
-						}
+						updateRunInfoUI();
 						return;
 					}else
 						if(pointList.size() == 1){
@@ -246,9 +244,7 @@ public class RunListFragment extends Fragment {
 							mTotalMetre = 0;
 							mLastFinalTripPoint = pointList.get(0);
 
-							if(isVisible()){
-								updateRunInfoUI();
-							}
+							updateRunInfoUI();
 							return;
 						}
 					
@@ -261,9 +257,7 @@ public class RunListFragment extends Fragment {
 					double totalDistance = LocationUtils.caculateTotalDistance(finalPointList);
 					mTotalMetre = (long) totalDistance;
 					
-					if(isVisible()){
-						updateRunInfoUI();
-					}
+					updateRunInfoUI();
 				}
 
 				@Override

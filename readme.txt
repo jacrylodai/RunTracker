@@ -38,3 +38,4 @@
 *可以修改旅途名称，修改bug，loader在onStart里只能使用restartLoader
 *修改list item的布局
 *完成删除旅程功能
+*修改bug，创建控件onCreateView后，可以直接更新ui

@@ -40,7 +40,7 @@ public class RunManager {
 	private static final String TEST_PROVIDER = "TEST_PROVIDER";
 	
 	//地理位置更新的最小间距
-	private static final int MIN_DISTANCE = 2;
+	private static final int MIN_DISTANCE = 0;
 
 	//统计旅程记录点之间的最小间距
 	public static final double MIN_TRIP_DISTANCE = 50;
