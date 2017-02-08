@@ -31,7 +31,7 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
 	
 	private static final String TABLE_RUN_NAME = "t_run";
 	
-	private static final String COLUMN_RUN_RUN_ID = "_id";
+	public static final String COLUMN_RUN_RUN_ID = "_id";
 
 	private static final String COLUMN_RUN_RUN_STATE= "run_state";
 	

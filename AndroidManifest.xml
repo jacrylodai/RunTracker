@@ -56,7 +56,7 @@
         </activity>
         
         <activity 
-            android:name="com.bignerdranch.android.runtracker.activity.RunActivity"
+            android:name="com.bignerdranch.android.runtracker.activity.RunPagerActivity"
             ></activity>
         
         <activity 

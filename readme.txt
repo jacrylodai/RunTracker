@@ -39,3 +39,4 @@
 *修改list item的布局
 *完成删除旅程功能
 *修改bug，创建控件onCreateView后，可以直接更新ui
+*给RunFragment设置到ViewPager里，可以滑动显示

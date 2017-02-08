@@ -7,7 +7,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter; 
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
@@ -37,7 +37,8 @@ import com.baidu.mapapi.utils.DistanceUtil;
 import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.activity.ConfigActivity;
 import com.bignerdranch.android.runtracker.activity.DeleteRunItemsActivity;
-import com.bignerdranch.android.runtracker.activity.RunActivity;
+import com.bignerdranch.android.runtracker.activity.RunPagerActivity;
+import com.bignerdranch.android.runtracker.db.RunDatabaseHelper;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCursor;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.LocationData;
@@ -73,6 +74,8 @@ public class RunListFragment extends Fragment {
 	private TextView mTVElapsedTime,mTVTripPoint,mTVTotalMetre;
 	
 	private RunManager mRunManager;
+	
+	private ArrayList<Long> mRunIdList;
 	
 	//当前正在被记录的旅程
 	private Run mRun;
@@ -183,8 +186,22 @@ public class RunListFragment extends Fragment {
 				@Override
 				public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
+					mRunIdList = new ArrayList<Long>();
+					RunCursor runCursor = (RunCursor)cursor;
+					
+					if(cursor.moveToFirst()){
+						do{
+							long runId = 
+									runCursor.getLong(runCursor.getColumnIndex(
+											RunDatabaseHelper.COLUMN_RUN_RUN_ID));
+							mRunIdList.add(runId);
+						}while(cursor.moveToNext());
+					}
+					
+					runCursor.moveToFirst();
+					
 					RunCursorAdapter adapter = 
-							new RunCursorAdapter(getActivity(), (RunCursor)cursor);
+							new RunCursorAdapter(getActivity(), runCursor);
 					mLVRunList.setAdapter(adapter);
 				}
 
@@ -335,10 +352,13 @@ public class RunListFragment extends Fragment {
 					int position, long id) {
 				
 				Log.i(TAG, "onListItemClick");
+				Log.i(TAG,"position:"+position);
 				Log.i(TAG,"runId:"+id);
 				
-				Intent intent = new Intent(getActivity(),RunActivity.class);
-				intent.putExtra(RunActivity.EXTRA_RUN_ID, id);
+				Intent intent = new Intent(getActivity(),RunPagerActivity.class);
+				intent.putExtra(RunPagerActivity.EXTRA_RUN_ID_POSITION, position);
+				intent.putExtra(RunPagerActivity.EXTRA_RUN_ID_LIST, mRunIdList);
+				
 				startActivity(intent);
 			}
 		});
