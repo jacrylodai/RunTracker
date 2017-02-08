@@ -23,6 +23,7 @@
     
     <!-- back -->
     <string name="does_not_input_run_name">你没有输入旅程名称，原来的旅程名称将会被使用</string>
+    <string name="press_again_to_exit">再按一次退出旅程记录!</string>
     
     <!-- RunActivity -->
     <!-- layout -->

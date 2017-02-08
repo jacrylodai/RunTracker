@@ -2,9 +2,11 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="4dp"
     >
         
-    <TableRow>
+    <TableRow
+        >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,6 +91,7 @@
         android:id="@+id/button_show_map"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:text="@string/show_map"
         />
 </TableLayout>

@@ -23,6 +23,7 @@
     
     <!-- back -->
     <string name="does_not_input_run_name">You didn\'t input run name,The origin name will be used.</string>
+    <string name="press_again_to_exit">Press again to exit RunTracker!</string>
     
     <!-- RunActivity -->
     <!-- layout -->
