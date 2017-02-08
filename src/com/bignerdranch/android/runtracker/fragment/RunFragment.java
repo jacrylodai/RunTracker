@@ -2,14 +2,18 @@ package com.bignerdranch.android.runtracker.fragment;
 
 import java.util.Date;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NavUtils;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -74,14 +78,23 @@ public class RunFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		setHasOptionsMenu(true);
 	}
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
 		View view = inflater.inflate(R.layout.fragment_run, container, false);
         
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+			if(NavUtils.getParentActivityName(getActivity()) != null){
+				getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+			}
+		}
+		
 		mTVRunName = (TextView) view.findViewById(R.id.tv_run_name);
         mStartedTextView = (TextView)view.findViewById(R.id.run_startedTextView);
         mDurationTextView = (TextView)view.findViewById(R.id.run_durationTextView);
@@ -112,6 +125,21 @@ public class RunFragment extends Fragment {
 		}
 		
         return view;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			if(NavUtils.getParentActivityName(getActivity()) != null){
+				NavUtils.navigateUpFromSameTask(getActivity());
+			}
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 	
 	private void updateUI(){
