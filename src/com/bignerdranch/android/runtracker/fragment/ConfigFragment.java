@@ -53,7 +53,6 @@ public class ConfigFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_config, container, false);
 		
 		cisvConfigRecordTime = (ConfigItemSelectView) view.findViewById(R.id.cisv_config_record_time);
-		cisvConfigRecordTime.setTitleId(R.string.record_time_title);
 		
 		cisvConfigRecordTime.setOnClickListener(new View.OnClickListener() {
 			
