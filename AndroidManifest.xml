@@ -79,6 +79,10 @@
             android:name=".activity.DeleteRunItemsActivity"
             ></activity>
         
+        <activity 
+            android:name=".activity.UseGuideActivity"
+            ></activity>
+        
         <receiver 
             android:name=".receiver.TrackingLocationReceiver"
             android:exported="false"

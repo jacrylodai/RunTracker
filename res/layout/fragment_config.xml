@@ -20,4 +20,12 @@
         bignerdranchldp:config_desc="@string/location_service_desc"
         />
     
+    <com.bignerdranchldp.android.runtracker.ui.ConfigItemSelectView
+        android:id="@+id/cisv_config_use_guide"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        bignerdranchldp:config_title="@string/use_guide_title"
+        bignerdranchldp:config_desc="@string/use_guide_desc"
+        />
+    
 </LinearLayout>

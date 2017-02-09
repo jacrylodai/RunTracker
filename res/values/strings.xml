@@ -78,6 +78,8 @@
     <string name="record_time_setting_info">Please set the recored time at a proper rate.Recommend value is 90.The less value you set,The more frequently GPS service is been called.And it will cost more power</string>
     <string name="location_service_title">Config Location Service</string>
     <string name="location_service_desc">Config my Location Service.You should enable your location service.Otherwise you can\'t track your trip.</string>
+    <string name="use_guide_title">软件使用说明</string>
+    <string name="use_guide_desc">如果无法使用旅程记录，请仔细阅读使用说明，查看是否开启GPS定位服务</string>
     <!-- menu -->
     <!-- back -->
     <string name="config_config">Config</string>

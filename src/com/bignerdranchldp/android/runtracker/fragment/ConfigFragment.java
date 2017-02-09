@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bignerdranchldp.android.runtracker.R;
+import com.bignerdranchldp.android.runtracker.activity.UseGuideActivity;
 import com.bignerdranchldp.android.runtracker.ui.ConfigItemSelectView;
 
 public class ConfigFragment extends Fragment {
@@ -40,6 +41,8 @@ public class ConfigFragment extends Fragment {
 	
 	private ConfigItemSelectView cisvConfigLocationService;
 	
+	private ConfigItemSelectView cisvConfigUseGuide;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,6 +62,8 @@ public class ConfigFragment extends Fragment {
 				(ConfigItemSelectView) view.findViewById(R.id.cisv_config_record_time);
 		cisvConfigLocationService = 
 				(ConfigItemSelectView) view.findViewById(R.id.cisv_config_location_service);
+		cisvConfigUseGuide = 
+				(ConfigItemSelectView) view.findViewById(R.id.cisv_config_use_guide);
 		
 		cisvConfigRecordTime.setOnClickListener(new View.OnClickListener() {
 			
@@ -79,6 +84,17 @@ public class ConfigFragment extends Fragment {
 			}
 		});
 		cisvConfigLocationService.setValue("");
+		
+		cisvConfigUseGuide.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+
+				Intent intent = new Intent(getActivity(),UseGuideActivity.class);
+				startActivity(intent);
+			}
+		});
+		cisvConfigUseGuide.setValue("");
 		
 		updateConfigUI();
 		
