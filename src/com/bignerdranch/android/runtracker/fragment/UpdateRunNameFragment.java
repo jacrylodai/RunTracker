@@ -84,6 +84,7 @@ public class UpdateRunNameFragment extends DialogFragment {
 		
 		String runName = getArguments().getString(EXTRA_RUN_NAME);
 		mETRunName.setText(runName);
+		mETRunName.setSelection(runName.length());
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.update_run_name)
