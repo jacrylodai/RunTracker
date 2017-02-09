@@ -66,6 +66,8 @@
     <!-- layout -->
     <string name="record_time_title">Record time (Second)</string>
     <string name="record_time_desc">The software will record current location every %d second.</string>
+    <string name="location_service_title">Config Location Service</string>
+    <string name="location_service_desc">Config my Location Service.You should enable your location service.Otherwise you can\'t track your trip.</string>
     <!-- menu -->
     <!-- back -->
     <string name="config_config">Config</string>

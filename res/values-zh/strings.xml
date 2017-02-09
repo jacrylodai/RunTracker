@@ -66,6 +66,8 @@
     <!-- layout -->
     <string name="record_time_title">记录频率（秒）</string>
     <string name="record_time_desc">软件会每隔 %d 秒记录一次旅程信息.</string>
+    <string name="location_service_title">设置定位服务</string>
+    <string name="location_service_desc">设置定位服务，你应该开启定位服务，否则你无法记录旅程</string>
     <!-- menu -->
     <!-- back -->
     <string name="config_config">设置</string>

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -37,6 +38,8 @@ public class ConfigFragment extends Fragment {
 	
 	private ConfigItemSelectView cisvConfigRecordTime;
 	
+	private ConfigItemSelectView cisvConfigLocationService;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,7 +55,10 @@ public class ConfigFragment extends Fragment {
 		
 		View view = inflater.inflate(R.layout.fragment_config, container, false);
 		
-		cisvConfigRecordTime = (ConfigItemSelectView) view.findViewById(R.id.cisv_config_record_time);
+		cisvConfigRecordTime = 
+				(ConfigItemSelectView) view.findViewById(R.id.cisv_config_record_time);
+		cisvConfigLocationService = 
+				(ConfigItemSelectView) view.findViewById(R.id.cisv_config_location_service);
 		
 		cisvConfigRecordTime.setOnClickListener(new View.OnClickListener() {
 			
@@ -62,6 +68,17 @@ public class ConfigFragment extends Fragment {
 				showUpdateRecordTimeDialog();
 			}
 		});
+		
+		cisvConfigLocationService.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+
+				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				startActivity(intent);
+			}
+		});
+		cisvConfigLocationService.setValue("");
 		
 		updateConfigUI();
 		
