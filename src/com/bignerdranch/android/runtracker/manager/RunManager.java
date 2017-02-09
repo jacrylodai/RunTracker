@@ -195,28 +195,26 @@ public class RunManager {
 	}
 	
 	/**
-	 * 获取最佳服务对象  
-	 * locationManager.getBestProvider(criteria,true);方法看起来很完美，
-	 * 但其实返回值就network、gps二选一。而且如果你要求高精度，它会优先检查GPS，
-	 * 如果手机开启了GPS就返回GPS，否则返回network。如果都没开启则返回null。
+	 * 获取最佳服务对象,只使用GPS
 	 * @return
 	 */
 	public String getLocationProvider(){
 		
-		Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);//高精度
-        criteria.setAltitudeRequired(false);//无海拔要求
-        criteria.setBearingRequired(false);//无方位要求
-        criteria.setCostAllowed(true);//允许产生资费
-        criteria.setPowerRequirement(Criteria.POWER_LOW);//低功耗
-      
-        String provider = mLocationManager.getBestProvider(criteria,true);        
-		Log.i(TAG, "provider:"+provider);
+//		Criteria criteria = new Criteria();
+//        criteria.setAccuracy(Criteria.ACCURACY_FINE);//高精度
+//        criteria.setAltitudeRequired(false);//无海拔要求
+//        criteria.setBearingRequired(false);//无方位要求
+//        criteria.setCostAllowed(true);//允许产生资费
+//        criteria.setPowerRequirement(Criteria.POWER_LOW);//低功耗
+//      
+//        String provider = mLocationManager.getBestProvider(criteria,true);        
+//		Log.i(TAG, "provider:"+provider);
+//		
+//		if(provider.equals(LocationManager.PASSIVE_PROVIDER)){
+//			return null;
+//		}
 		
-		if(provider.equals(LocationManager.PASSIVE_PROVIDER)){
-			return null;
-		}
-        return provider;
+        return LocationManager.GPS_PROVIDER;
 	}
 
 	public void startLocationUpdates(){
@@ -229,8 +227,8 @@ public class RunManager {
         	return;
         }
         
-        Toast.makeText(mAppContext, "Using location provider:"+provider
-        		, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(mAppContext, "Using location provider:"+provider
+//        		, Toast.LENGTH_SHORT).show();
 				
 		PendingIntent intent = getLocationPendingIntent(true);
 		

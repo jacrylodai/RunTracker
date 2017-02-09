@@ -49,3 +49,4 @@
 *ConfigItemSelectView自定义控件设置自定义属性
 *加入设置定位服务
 *trip marker 改为小图标
+*4G网路定位精度太差，wifi精确度还好，但户外没有wifi，精确定位只能使用GPS
