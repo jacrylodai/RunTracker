@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bignerdranch="http://schemas.android.com/apk/res/com.bignerdranch.android.runtracker"
+    xmlns:bignerdranchldp="http://schemas.android.com/apk/res/com.bignerdranchldp.android.runtracker"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <com.bignerdranch.android.runtracker.ui.ConfigItemSelectView
+    <com.bignerdranchldp.android.runtracker.ui.ConfigItemSelectView
         android:id="@+id/cisv_config_record_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        bignerdranch:config_title="@string/record_time_title"
+        bignerdranchldp:config_title="@string/record_time_title"
         />
     
-    <com.bignerdranch.android.runtracker.ui.ConfigItemSelectView
+    <com.bignerdranchldp.android.runtracker.ui.ConfigItemSelectView
         android:id="@+id/cisv_config_location_service"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        bignerdranch:config_title="@string/location_service_title"
-        bignerdranch:config_desc="@string/location_service_desc"
+        bignerdranchldp:config_title="@string/location_service_title"
+        bignerdranchldp:config_desc="@string/location_service_desc"
         />
     
 </LinearLayout>
