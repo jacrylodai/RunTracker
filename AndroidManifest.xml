@@ -44,7 +44,7 @@
         
         <meta-data  
 	        android:name="com.baidu.lbsapi.API_KEY"  
-	        android:value="Tvou31wAW9OBMGg5XYhGYLI8oRXR5w7j" />  
+	        android:value="cGfk1GWrHPtcHk1cj4xj1MB2p4qQ0Cfe" />  
 	       
         <activity
             android:name=".activity.SplashActivity"
