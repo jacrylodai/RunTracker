@@ -14,6 +14,7 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.util.Log;
@@ -23,7 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +32,6 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
-import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -40,6 +40,7 @@ import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
@@ -47,20 +48,15 @@ import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
-import com.baidu.mapapi.map.SupportMapFragment;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
-import com.baidu.mapapi.utils.CoordinateConverter;
-import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
-import com.baidu.mapapi.utils.DistanceUtil;
 import com.bignerdranchldp.android.runtracker.R;
 import com.bignerdranchldp.android.runtracker.db.RunDatabaseHelper.LocationDataCursor;
 import com.bignerdranchldp.android.runtracker.domain.LocationData;
 import com.bignerdranchldp.android.runtracker.loader.LocationDataListLoader;
-import com.bignerdranchldp.android.runtracker.manager.RunManager;
 import com.bignerdranchldp.android.runtracker.utils.location.LocationUtils;
 
-public class RunMapFragment extends SupportMapFragment{
+public class RunMapFragment extends Fragment{
 
 	private static final String TAG = RunMapFragment.class.getSimpleName();
 	
@@ -80,6 +76,10 @@ public class RunMapFragment extends SupportMapFragment{
 	
 	//默认的地图更新动画时间：毫秒
 	private static final int DEFAULT_MAP_UPDATE_ANIMATION_TIME = 600;
+	
+	private MapView mMVBaiduMap;
+
+	private ImageButton mIBMyLocation,mIBDisableMyLocation;
 		
 	private BaiduMap mBaiduMap;
 	
@@ -135,6 +135,7 @@ public class RunMapFragment extends SupportMapFragment{
 				public void onLoaderReset(Loader<Cursor> loader) {
 				}
 			};
+
 	
 	public static RunMapFragment newInstance(long runId){
 		
@@ -159,12 +160,55 @@ public class RunMapFragment extends SupportMapFragment{
 				
 	}
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup parent
 			, Bundle savedInstanceState) {
 		
-		View view = super.onCreateView(inflater, parent, savedInstanceState);
-		mBaiduMap = getBaiduMap();
+		View view = inflater.inflate(R.layout.fragment_run_map, parent,false);
+		mMVBaiduMap = (MapView) view.findViewById(R.id.mv_baidu_map);
+		mIBMyLocation = (ImageButton) view.findViewById(R.id.ib_my_location);
+		mIBDisableMyLocation = (ImageButton) view.findViewById(R.id.ib_disable_my_location);
+				
+		mBaiduMap = mMVBaiduMap.getMap();
+		
+		mIBMyLocation.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				if(isTrackingMyLocation){
+					if(mMyBDLocation != null){
+						LatLng myLL = new LatLng(mMyBDLocation.getLatitude()
+								, mMyBDLocation.getLongitude());
+						locateToPositionAndZoomTo(myLL, DEFAULT_MAP_ZOOM_LEVEL);
+					}
+				}else{
+					isTrackingMyLocation = true;
+					showMyLocation();
+				}
+				
+				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+					getActivity().invalidateOptionsMenu();
+				}
+			}
+		});
+		
+		mIBDisableMyLocation.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				if(isTrackingMyLocation){
+					isTrackingMyLocation = false;
+					doNotShowMyLocation();
+				}
+				
+				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+					getActivity().invalidateOptionsMenu();
+				}
+			}
+		});
 		
 		initialMap();
 		
@@ -193,6 +237,19 @@ public class RunMapFragment extends SupportMapFragment{
 	}
 	
 	@Override
+	public void onResume() {
+		super.onResume();
+		mMVBaiduMap.onResume();
+	}
+	
+	@Override
+	public void onPause() {
+		
+		mMVBaiduMap.onPause();
+		super.onPause();
+	}
+	
+	@Override
 	public void onStop() {
 		
 		if(isTrackingMyLocation){
@@ -205,6 +262,7 @@ public class RunMapFragment extends SupportMapFragment{
 			mLocationClient.unRegisterLocationListener(mMyLocationListener);
 			mBaiduMap.setMyLocationEnabled(false);
 		}
+		
 		super.onStop();
 	}
 	
@@ -215,6 +273,8 @@ public class RunMapFragment extends SupportMapFragment{
 		mPointMarker.recycle();
 		mStartPointMarker.recycle();
 		mEndPointMarker.recycle();
+		
+		mMVBaiduMap.onDestroy();
 		
 		super.onDestroy();
 	}
@@ -300,6 +360,11 @@ public class RunMapFragment extends SupportMapFragment{
 		case R.id.menu_item_location_mode_compass:
 			
 			updateMapLocationMode(LocationMode.COMPASS);
+			return true;
+			
+		case R.id.menu_item_back:
+			
+			getActivity().finish();
 			return true;
 			
 		default:

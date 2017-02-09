@@ -33,7 +33,7 @@ public class ConfigFragment extends Fragment {
 	public static final String PREF_RECORD_TIME = "recordTime";
 	
 	//默认的记录间隔时间（秒）
-	public static final int DEFAULT_RECORD_TIME = 90;
+	public static final int DEFAULT_RECORD_TIME = 60;
 	
 	private SharedPreferences mPref;
 	
