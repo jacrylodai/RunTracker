@@ -12,8 +12,8 @@
     <string name="run_desc">旅程记录:%s</string>
     <string name="run_list_trip_point">所有旅程节点:</string>
     <string name="run_list_total_metre">总路程(米):</string>
-    <string name="start">启动</string>
-    <string name="stop">停止</string>
+    <string name="start">开始记录</string>
+    <string name="stop">停止记录</string>
     
     <string name="update_run_name">修改旅程名称</string>
     <!-- menu -->
@@ -66,6 +66,7 @@
     <!-- layout -->
     <string name="record_time_title">记录频率（秒）</string>
     <string name="record_time_desc">软件会每隔 %d 秒记录一次旅程信息.</string>
+    <string name="record_time_setting_info">请设置为一个合适的值，推荐设置为90秒，你设置的值越小，GPS服务就会被越频繁的调用，这样就会消耗更多的电量</string>
     <string name="location_service_title">设置定位服务</string>
     <string name="location_service_desc">设置定位服务，你应该开启定位服务，否则你无法记录旅程</string>
     <!-- menu -->

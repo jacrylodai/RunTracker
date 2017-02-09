@@ -25,7 +25,7 @@ public class UpdateRecordTimeFragment extends DialogFragment {
 	
 	public static final String EXTRA_RECORD_TIME = "recordTime";
 	
-	private static final Integer[] RECORD_TIME_ARRAY = new Integer[]{2,5,20,40,60,90,150,240,390};
+	private static final Integer[] RECORD_TIME_ARRAY = new Integer[]{20,40,60,90,150,240,390};
 	
 	public static UpdateRecordTimeFragment newInstance(int recordTime){
 		
