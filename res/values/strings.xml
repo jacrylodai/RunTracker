@@ -6,6 +6,9 @@
     <string name="gps_enabled">GPS Enabled</string>
     <string name="gps_disabled">GPS Disabled</string>
     
+    <!-- SplashActivity -->
+    <!-- layout -->
+    <string name="track_your_trip_route">记录你的旅程</string>
     
     <!-- RunListActivity -->    
     <!-- layout -->
@@ -14,6 +17,9 @@
     <string name="run_list_total_metre">Total Metre:</string>
     <string name="start">Start</string>
     <string name="stop">stop</string>
+    <string name="first_use_guide_title">欢迎使用旅程记录</string>
+    <string name="first_use_guide_info">软件会使用GPS定位服务来记录旅程位置，请开启你手机上的GPS定位服务，请不要禁止本软件使用定位服务，否则将无法记录旅程信息</string>
+    <string name="do_not_warn_me_again">下次不要再提醒我</string>
     
     <string name="update_run_name">Update Run Name</string>
     <!-- menu -->

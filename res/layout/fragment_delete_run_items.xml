@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:text="@string/delete_description"
-        android:textSize="22sp"
+        android:textSize="18sp"
         />
     
     <View 

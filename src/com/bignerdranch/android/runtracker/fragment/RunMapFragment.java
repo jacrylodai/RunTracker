@@ -56,7 +56,7 @@ import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCurs
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.loader.LocationDataListLoader;
 import com.bignerdranch.android.runtracker.manager.RunManager;
-import com.bignerdranch.android.runtracker.util.LocationUtils;
+import com.bignerdranch.android.runtracker.utils.location.LocationUtils;
 
 public class RunMapFragment extends SupportMapFragment{
 

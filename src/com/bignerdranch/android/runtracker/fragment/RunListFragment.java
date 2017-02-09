@@ -48,7 +48,7 @@ import com.bignerdranch.android.runtracker.loader.LocationDataListLoader;
 import com.bignerdranch.android.runtracker.loader.RunListCursorLoader;
 import com.bignerdranch.android.runtracker.manager.RunManager;
 import com.bignerdranch.android.runtracker.receiver.LocationReceiver;
-import com.bignerdranch.android.runtracker.util.LocationUtils;
+import com.bignerdranch.android.runtracker.utils.location.LocationUtils;
 
 public class RunListFragment extends Fragment {
 	

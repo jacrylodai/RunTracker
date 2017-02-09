@@ -22,8 +22,8 @@ import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.fragment.ConfigFragment;
-import com.bignerdranch.android.runtracker.util.DateUtils;
-import com.bignerdranch.android.runtracker.util.LocationUtils;
+import com.bignerdranch.android.runtracker.utils.date.DateUtils;
+import com.bignerdranch.android.runtracker.utils.location.LocationUtils;
 
 public class RunManager {
 	

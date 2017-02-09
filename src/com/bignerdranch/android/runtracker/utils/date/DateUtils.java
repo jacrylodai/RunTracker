@@ -1,4 +1,4 @@
-package com.bignerdranch.android.runtracker.util;
+package com.bignerdranch.android.runtracker.utils.date;
 
 import java.util.Date;
 

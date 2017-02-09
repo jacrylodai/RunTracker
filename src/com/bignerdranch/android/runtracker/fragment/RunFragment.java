@@ -24,7 +24,7 @@ import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.activity.RunMapActivity;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.loader.RunLoader;
-import com.bignerdranch.android.runtracker.util.DateUtils;
+import com.bignerdranch.android.runtracker.utils.date.DateUtils;
 
 public class RunFragment extends Fragment {
 	

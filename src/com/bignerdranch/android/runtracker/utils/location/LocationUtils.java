@@ -1,4 +1,4 @@
-package com.bignerdranch.android.runtracker.util;
+package com.bignerdranch.android.runtracker.utils.location;
 
 import java.util.ArrayList;
 import java.util.List;

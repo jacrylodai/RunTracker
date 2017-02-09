@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="serverApkInfoUrl">http://192.168.1.122:8080/run_tracker_info</string>
+</resources>
