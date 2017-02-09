@@ -19,6 +19,9 @@
     <string name="stop">stop</string>
     <string name="first_use_guide_title">欢迎使用旅程记录</string>
     <string name="first_use_guide_info">软件会使用GPS定位服务来记录旅程位置，请开启你手机上的GPS定位服务，请不要禁止本软件使用定位服务，否则将无法记录旅程信息</string>
+    <string name="first_use_gps_guide_title">请注意</string>
+    <string name="first_use_gps_guide_info_first">在使用过程中请不要关闭定位服务，本软件是在后台自动记录旅程位置，在开启旅程记录后你可以退出本软件，这期间你可以在手机上做其他的事，一旦旅程记录完毕，请再次进入本软件停止记录</string>
+    <string name="first_use_gps_guide_info_second">在建筑物内会阻拦GPS信号，所以在建筑物内是无法进行GPS定位的，请在室外记录旅程</string>
     <string name="do_not_warn_me_again">下次不要再提醒我</string>
     
     <string name="update_run_name">Update Run Name</string>

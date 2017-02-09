@@ -8,11 +8,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -67,6 +69,13 @@ public class RunListFragment extends Fragment {
 	private static final int REQUEST_CODE_DELETE_RUN_ITEMS = 2;
 	
 	private static final String DIALOG_UPDATE_RUN_NAME = "dialogUpdateRunName";
+
+	private static final String DIALOG_FIRST_USE_GPS_GUIDE = "dialogFirstUseGPSGuide";
+	
+	//第一次使用GPS记录时的指南
+	public static final String PREF_FIRST_USE_GPS_GUIDE_SHOW = "firstUseGPSGuideShow";
+	
+	private SharedPreferences mPref;
 	
 	private ListView mLVRunList;
 	
@@ -293,6 +302,8 @@ public class RunListFragment extends Fragment {
 		super.onCreate(savedInstanceState);		
 		setHasOptionsMenu(true);
 		
+		mPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		
 		mRunManager = RunManager.getInstance(getActivity());
 		mIsTracking = mRunManager.isTrackingRun();
 		if(mIsTracking){
@@ -391,6 +402,8 @@ public class RunListFragment extends Fragment {
 					
 					//启动定时器，每隔1秒更新记录时间UI
 					new Thread(mTimeClock).start();
+					
+					showFirstUseGPSDialog();
 				}
 			}
 		});
@@ -556,6 +569,20 @@ public class RunListFragment extends Fragment {
 		updateRunNameFragment.setTargetFragment(this, REQUEST_CODE_UPDATE_RUN_NAME);
 		
 		updateRunNameFragment.show(fragmentManager, DIALOG_UPDATE_RUN_NAME);
+	}
+	
+	private void showFirstUseGPSDialog(){
+		
+		boolean isShowFirstUseGPS = mPref.getBoolean(PREF_FIRST_USE_GPS_GUIDE_SHOW, true);
+		if(isShowFirstUseGPS == false){
+			return;
+		}
+		
+		FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+		
+		FirstUseGPSGuideFragment firstUseGPSGuideFragment = 
+				new FirstUseGPSGuideFragment();
+		firstUseGPSGuideFragment.show(fragmentManager, DIALOG_FIRST_USE_GPS_GUIDE);
 	}
 	
 	private class RunCursorAdapter extends CursorAdapter{

@@ -16,7 +16,7 @@ import com.bignerdranchldp.android.runtracker.R;
 import com.bignerdranchldp.android.runtracker.activity.RunListActivity;
 import com.bignerdranchldp.android.runtracker.activity.SplashActivity;
 
-public class FirstUseGuideFragment extends DialogFragment {
+public class FirstUseGPSGuideFragment extends DialogFragment {
 	
 	private SharedPreferences mPref;
 	
@@ -34,11 +34,11 @@ public class FirstUseGuideFragment extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		
 		View view = getActivity().getLayoutInflater().inflate(
-				R.layout.dialog_first_use_guide, null);
+				R.layout.dialog_first_use_gps_guide, null);
 		mCBDoNotWarn = (CheckBox) view.findViewById(R.id.cb_do_not_warn);
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(R.string.first_use_guide_title);
+		builder.setTitle(R.string.first_use_gps_guide_title);
 		builder.setView(view);
 		builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			
@@ -47,28 +47,13 @@ public class FirstUseGuideFragment extends DialogFragment {
 				
 				if(mCBDoNotWarn.isChecked()){
 					mPref.edit()
-						.putBoolean(SplashActivity.PREF_FIRST_USE_GUIDE_SHOW, false)
+						.putBoolean(RunListFragment.PREF_FIRST_USE_GPS_GUIDE_SHOW, false)
 						.commit();
 				}
-				enterMainPrograme();
 			}
 		});
 		
 		return builder.create();
-	}
-	
-	@Override
-	public void onCancel(DialogInterface dialog) {
-		
-		super.onCancel(dialog);
-		enterMainPrograme();
-	}
-	
-	public void enterMainPrograme(){
-		
-		Intent intent = new Intent(getActivity(),RunListActivity.class);
-		startActivity(intent);
-		getActivity().finish();
 	}
 	
 }

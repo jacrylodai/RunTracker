@@ -8,6 +8,7 @@ import net.tsz.afinal.http.AjaxCallBack;
 import org.json.JSONException;
 
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +20,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +31,7 @@ import android.widget.Toast;
 
 import com.bignerdranchldp.android.runtracker.R;
 import com.bignerdranchldp.android.runtracker.domain.ServerAPKInfo;
+import com.bignerdranchldp.android.runtracker.fragment.FirstUseGuideFragment;
 import com.bignerdranchldp.android.runtracker.utils.http.HttpCallbackListener;
 import com.bignerdranchldp.android.runtracker.utils.http.HttpConnectionUtil;
 
@@ -35,13 +39,17 @@ public class SplashActivity extends ActionBarActivity{
 	
 	private static final String TAG = SplashActivity.class.getSimpleName();
 
-	protected static final int NETWORK_ERROR = 1;
+	private static final int NETWORK_ERROR = 1;
 
-	protected static final int JSON_ERROR = 2;
+	private static final int JSON_ERROR = 2;
 
-	protected static final int ENTER_HOME = 3;
+	private static final int ENTER_HOME = 3;
 
-	protected static final int UPDATE_DIALOG = 4;
+	private static final int UPDATE_DIALOG = 4;
+	
+	public static final String PREF_FIRST_USE_GUIDE_SHOW = "firstUseGuideShow";
+	
+	private static final String DIALOG_SHOW_FIRST_USE_GUIDE = "dialogShowFirstUseGuide";
 	
 	private SharedPreferences mPref;
 	
@@ -94,6 +102,8 @@ public class SplashActivity extends ActionBarActivity{
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_splash);
+		
+		mPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         pbSplashDownload = (ProgressBar) findViewById(R.id.pb_splash_download);
 		pbSplashDownload.setProgress(0);
@@ -105,11 +115,31 @@ public class SplashActivity extends ActionBarActivity{
 	
 	private void enterHome(){
 		
+		boolean isFirstGuideShow = mPref.getBoolean(PREF_FIRST_USE_GUIDE_SHOW, true);
+		if(isFirstGuideShow){
+			
+			showFirstGuide();
+		}else{
+			
+			enterMainPrograme();
+		}
+	}
+	
+	private void enterMainPrograme(){
+		
 		Intent intent = new Intent(this,RunListActivity.class);
 		startActivity(intent);
 		finish();
 	}
 	
+	private void showFirstGuide() {
+
+		FirstUseGuideFragment firstUseGuideFragment = new FirstUseGuideFragment();
+		
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		firstUseGuideFragment.show(fragmentManager, DIALOG_SHOW_FIRST_USE_GUIDE);
+	}
+
 	/**
 	 * 取得服务器的版本名称，并和服务器的版本名称进行比对
 	 */
