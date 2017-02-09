@@ -23,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.InfoWindow;
 import com.baidu.mapapi.map.MapPoi;
+import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.Marker;
@@ -283,11 +285,16 @@ public class RunMapFragment extends SupportMapFragment{
 		case R.id.menu_item_location_mode_normal:
 			
 			updateMapLocationMode(LocationMode.NORMAL);
-			return true;
 
-		case R.id.menu_item_location_mode_following:
-			
-			updateMapLocationMode(LocationMode.FOLLOWING);
+			updateOverlook(0);
+			mHandler.postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+
+					updateRotate(0);
+				}
+			}, DEFAULT_MAP_UPDATE_ANIMATION_TIME);
 			return true;
 
 		case R.id.menu_item_location_mode_compass:
@@ -313,16 +320,13 @@ public class RunMapFragment extends SupportMapFragment{
 		}
 		
 		MenuItem locationModeNormal = menu.findItem(R.id.menu_item_location_mode_normal);
-		MenuItem locationModeFollowing = menu.findItem(R.id.menu_item_location_mode_following);
 		MenuItem locationModeCompass = menu.findItem(R.id.menu_item_location_mode_compass);
 		
 		if(isTrackingMyLocation){
 			locationModeNormal.setEnabled(true);
-			locationModeFollowing.setEnabled(true);
 			locationModeCompass.setEnabled(true);
 		}else{
 			locationModeNormal.setEnabled(false);
-			locationModeFollowing.setEnabled(false);
 			locationModeCompass.setEnabled(false);
 		}
 	}
@@ -541,6 +545,24 @@ public class RunMapFragment extends SupportMapFragment{
 			
 			mBaiduMap.setMyLocationData(myLocationData);
 		}
+	}
+	
+	private void updateOverlook(int overlookAngle) {
+		
+		Log.i(TAG, "updateOverlook:"+overlookAngle);
+		MapStatus ms = new MapStatus.Builder(mBaiduMap.getMapStatus())
+			.overlook(overlookAngle).build();
+		MapStatusUpdate u = MapStatusUpdateFactory.newMapStatus(ms);
+		mBaiduMap.animateMapStatus(u,DEFAULT_MAP_UPDATE_ANIMATION_TIME);
+	}
+	
+	private void updateRotate(int rotateAngle) {
+		
+		Log.i(TAG, "updateRotate:"+rotateAngle);
+		MapStatus ms = new MapStatus.Builder(mBaiduMap.getMapStatus())
+			.rotate(rotateAngle).build();
+		MapStatusUpdate u = MapStatusUpdateFactory.newMapStatus(ms);
+		mBaiduMap.animateMapStatus(u,DEFAULT_MAP_UPDATE_ANIMATION_TIME);
 	}
 	
 	/**
