@@ -1,6 +1,5 @@
 package com.bignerdranch.android.runtracker.manager;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,16 +8,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Criteria;
 import android.location.LocationManager;
 import android.preference.PreferenceManager;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.utils.CoordinateConverter;
-import com.baidu.mapapi.utils.DistanceUtil;
-import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
 import com.bignerdranch.android.runtracker.R;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper;
 import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.LocationDataCursor;
@@ -26,18 +22,15 @@ import com.bignerdranch.android.runtracker.db.RunDatabaseHelper.RunCursor;
 import com.bignerdranch.android.runtracker.domain.LocationData;
 import com.bignerdranch.android.runtracker.domain.Run;
 import com.bignerdranch.android.runtracker.fragment.ConfigFragment;
-import com.bignerdranch.android.runtracker.fragment.RunMapFragment;
 import com.bignerdranch.android.runtracker.util.DateUtils;
 import com.bignerdranch.android.runtracker.util.LocationUtils;
 
 public class RunManager {
 	
-	private static final String TAG = "RunManager";
+	private static final String TAG = RunManager.class.getSimpleName();
 	
 	public static final String ACTION_LOCATION = 
 			"com.bignerdranch.android.runtracker.ACTION_LOCATION";
-	
-	private static final String TEST_PROVIDER = "TEST_PROVIDER";
 	
 	//地理位置更新的最小间距
 	private static final int MIN_DISTANCE = 0;
@@ -200,20 +193,45 @@ public class RunManager {
 		
 		mDatabaseHelper.deleteRunById(runId);
 	}
+	
+	/**
+	 * 获取最佳服务对象  
+	 * locationManager.getBestProvider(criteria,true);方法看起来很完美，
+	 * 但其实返回值就network、gps二选一。而且如果你要求高精度，它会优先检查GPS，
+	 * 如果手机开启了GPS就返回GPS，否则返回network。如果都没开启则返回null。
+	 * @return
+	 */
+	public String getLocationProvider(){
+		
+		Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);//高精度
+        criteria.setAltitudeRequired(false);//无海拔要求
+        criteria.setBearingRequired(false);//无方位要求
+        criteria.setCostAllowed(true);//允许产生资费
+        criteria.setPowerRequirement(Criteria.POWER_LOW);//低功耗
+      
+        String provider = mLocationManager.getBestProvider(criteria,true);        
+		Log.i(TAG, "provider:"+provider);
+		
+		if(provider.equals(LocationManager.PASSIVE_PROVIDER)){
+			return null;
+		}
+        return provider;
+	}
 
 	public void startLocationUpdates(){
 		
-		String provider = LocationManager.GPS_PROVIDER;
-		
-		//if you have the test provider and it is enabled.use it.
-		if(mLocationManager.getProvider(TEST_PROVIDER)!= null &&
-				mLocationManager.isProviderEnabled(TEST_PROVIDER)){
-			provider = TEST_PROVIDER;
-		}
-		
-		Log.i(TAG, "using gps:"+provider);
-//		Toast.makeText(mAppContext, "using gps:"+provider, Toast.LENGTH_LONG).show();
-		
+		String provider = getLocationProvider();
+        boolean isProviderEnabled = mLocationManager.isProviderEnabled(provider);
+        if(isProviderEnabled == false){
+        	Toast.makeText(mAppContext, R.string.cant_start_tracking_gps_not_enabled
+        			, Toast.LENGTH_LONG).show();
+        	return;
+        }
+        
+        Toast.makeText(mAppContext, "Using location provider:"+provider
+        		, Toast.LENGTH_SHORT).show();
+				
 		PendingIntent intent = getLocationPendingIntent(true);
 		
 		int recordTime = mPref.getInt(ConfigFragment.PREF_RECORD_TIME
@@ -301,6 +319,14 @@ public class RunManager {
 	public LocationDataCursor queryLocationDataListByRunId(long runId){
 		
 		return mDatabaseHelper.queryLocationDataListByRunId(runId);
+	}
+	
+	public boolean checkIsProviderEnabled(String provider){
+
+		if(provider == null){
+			return false;
+		}
+		return mLocationManager.isProviderEnabled(provider);
 	}
 	
 }

@@ -13,6 +13,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -374,6 +375,16 @@ public class RunListFragment extends Fragment {
 					Log.e(TAG, "current is already tracking run.can't execute two task");
 				}else{
 
+					boolean isProviderEnabled = mRunManager.checkIsProviderEnabled(
+							mRunManager.getLocationProvider());
+					if(isProviderEnabled == false){
+						Toast.makeText(getActivity(), R.string.cant_start_tracking_gps_not_enabled
+								, Toast.LENGTH_LONG).show();
+						Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				        startActivity(intent); //此为设置完成
+						return;
+					}
+					
 					mRun = mRunManager.startNewRun();	
 					mIsTracking = true;
 					updateButtonUI();
