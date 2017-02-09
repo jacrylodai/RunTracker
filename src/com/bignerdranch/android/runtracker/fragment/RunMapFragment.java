@@ -335,7 +335,7 @@ public class RunMapFragment extends SupportMapFragment{
 		mCustomMarker = BitmapDescriptorFactory
 				.fromResource(R.drawable.navi_map_gps_locked);
 		mPointMarker = BitmapDescriptorFactory
-				.fromResource(R.drawable.trip_marker);
+				.fromResource(R.drawable.trip_marker_small);
 		mStartPointMarker = BitmapDescriptorFactory.fromResource(R.drawable.start_point_marker);
 		mEndPointMarker = BitmapDescriptorFactory.fromResource(R.drawable.end_point_marker);
 	}
