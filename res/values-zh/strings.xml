@@ -1,45 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">旅程线路记录</string>
+    <string name="app_name">旅行线路记录</string>
 
     <string name="gps_enabled">打开GPS</string>
     <string name="gps_disabled">关闭GPS</string>
     
+    <!-- public string -->
+    <string name="enabled">启用</string>
+    <string name="disabled">关闭</string>
+    
+    <!-- SplashActivity -->
+    <!-- layout -->
+    <string name="track_your_trip_route">记录你的旅行线路</string>
     
     <!-- RunListActivity -->    
     <!-- layout -->
-    <string name="run_desc">旅程记录:%s</string>
-    <string name="run_list_trip_point">所有旅程节点:</string>
+    <string name="run_desc">旅行记录:%s</string>
+    <string name="run_list_trip_point">所有旅行线路节点:</string>
     <string name="run_list_total_metre">总路程(米):</string>
     <string name="start">开始记录</string>
     <string name="stop">停止记录</string>
     
-    <string name="update_run_name">修改旅程名称</string>
+    <string name="update_run_name">修改旅行名称</string>
     <!-- menu -->
-    <string name="new_run">新建旅程</string>
+    <string name="new_run">新建旅行</string>
     <string name="config">设置</string>
-    <string name="delete_run">删除旅程</string>
+    <string name="delete_run">删除旅行</string>
     
     <!-- back -->
-    <string name="does_not_input_run_name">你没有输入旅程名称，原来的旅程名称将会被使用</string>
-    <string name="press_again_to_exit">再按一次退出旅程记录!</string>
-    <string name="cant_start_tracking_gps_not_enabled">无法启动旅程跟踪，请先开启你手机上的GPS服务</string>
+    <string name="does_not_input_run_name">你没有输入旅行名称，原来的旅行名称将会被使用</string>
+    <string name="press_again_to_exit">再按一次退出旅行记录!</string>
+    <string name="cant_start_tracking_gps_not_enabled">无法启动旅行线路跟踪，请先开启你手机上的GPS服务</string>
     
     <!-- RunActivity -->
     <!-- layout -->
-    <string name="run_name">旅程名称:</string>
+    <string name="run_name">旅行名称:</string>
     <string name="started">创建日期:</string>
     <string name="elapsed_time">记录时长:</string>
-    <string name="total_trip_point">所有旅程节点:</string>
+    <string name="total_trip_point">所有旅行线路节点:</string>
     <string name="total_metre">总路程(米):</string>
     <string name="show_map">在地图上显示</string>
     <!-- menu -->
     <string name="back">返回</string>
     <!-- back -->    
-    <string name="cant_show_total_metre_no_location_data">无法显示总路程，没有找到旅程节点数据!</string>    
-    <string name="cant_show_total_metre_need_more_location_data">无法显示总路程，只有一条旅程节点数据，至少需要2条数据!</string>    
-    <string name="run_detail">旅程详情</string>
+    <string name="cant_show_total_metre_no_location_data">无法显示总路程，没有找到旅行线路节点数据!</string>    
+    <string name="cant_show_total_metre_need_more_location_data">无法显示总路程，只有一条旅行线路节点数据，至少需要2条数据!</string>    
+    <string name="run_detail">旅行详情</string>
     
     <!-- RunMapActivity -->
     <!-- layout -->
@@ -51,24 +58,24 @@
     <string name="location_mode_normal">普通定位模式</string>
     <string name="location_mode_following">追随定位模式</string>
     <string name="location_mode_compass">罗盘定位模式</string>
-    <string name="locate_to_start_point">切换到旅程起点</string>
-    <string name="locate_to_dest_point">切换到旅程终点</string>
-    <string name="show_all_trip_point">显示整个旅程节点</string>
+    <string name="locate_to_start_point">切换到旅行起点</string>
+    <string name="locate_to_dest_point">切换到旅行终点</string>
+    <string name="show_all_trip_point">显示整个旅行线路节点</string>
     <!-- back -->
     <string name="cant_get_sensor">无法得到传感器，不能显示你的位置</string>
-    <string name="trip_point">旅程节点 %d</string>
+    <string name="trip_point">旅行线路节点 %d</string>
     <string name="start_point">开始节点</string>
     <string name="dest_point">终止节点</string>
-    <string name="no_location_data">没有找到旅程节点数据!</string>    
-    <string name="need_more_location_data">只有一条旅程节点数据，至少需要2条数据!</string>    
+    <string name="no_location_data">没有找到旅行线路节点数据!</string>    
+    <string name="need_more_location_data">只有一条旅行线路节点数据，至少需要2条数据!</string>    
     
     <!-- ConfigActivity -->
     <!-- layout -->
     <string name="record_time_title">记录频率（秒）</string>
-    <string name="record_time_desc">软件会每隔 %d 秒记录一次旅程信息.</string>
+    <string name="record_time_desc">软件会每隔 %d 秒记录一次旅行信息.</string>
     <string name="record_time_setting_info">请设置为一个合适的值，推荐设置为90秒，你设置的值越小，GPS服务就会被越频繁的调用，这样就会消耗更多的电量</string>
     <string name="location_service_title">设置定位服务</string>
-    <string name="location_service_desc">设置定位服务，你应该开启定位服务，否则你无法记录旅程</string>
+    <string name="location_service_desc">设置定位服务，你应该开启定位服务，否则你无法记录旅行</string>
     <!-- menu -->
     <!-- back -->
     <string name="config_config">设置</string>
@@ -82,6 +89,6 @@
     <!-- back -->
     <string name="no_items_are_been_selected">无法删除，你没有选择任何项目.</string>
     <string name="delete_success">删除成功.</string>
-    <string name="dri_delete_run">删除旅程</string>
+    <string name="dri_delete_run">删除旅行</string>
     
 </resources>

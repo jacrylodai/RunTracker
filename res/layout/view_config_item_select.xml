@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:padding="12dp"
+        android:padding="8dp"
         android:src="@drawable/right_arrow"
         />
     
@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/iv_config_arrow"
         android:layout_centerVertical="true"
+        android:padding="8dp"
         android:text="Value"
         />
     

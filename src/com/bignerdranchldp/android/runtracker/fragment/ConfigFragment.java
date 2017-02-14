@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 
 import com.bignerdranchldp.android.runtracker.R;
 import com.bignerdranchldp.android.runtracker.activity.UseGuideActivity;
+import com.bignerdranchldp.android.runtracker.manager.RunManager;
 import com.bignerdranchldp.android.runtracker.ui.ConfigItemSelectView;
 
 public class ConfigFragment extends Fragment {
@@ -28,6 +29,8 @@ public class ConfigFragment extends Fragment {
 	private static final String DIALOG_UPDATE_RECORD_TIME = "dialogUpdateRecordTime";
 	
 	private static final int REQUEST_CODE_UPDATE_RECORD_TIME = 1;
+
+	private static final int REQUEST_CODE_UPDATE_LOCATION_SERVICE = 2;
 	
 	//记录间隔时间
 	public static final String PREF_RECORD_TIME = "recordTime";
@@ -36,6 +39,8 @@ public class ConfigFragment extends Fragment {
 	public static final int DEFAULT_RECORD_TIME = 60;
 	
 	private SharedPreferences mPref;
+	
+	private RunManager mRunManager;
 	
 	private ConfigItemSelectView cisvConfigRecordTime;
 	
@@ -49,7 +54,10 @@ public class ConfigFragment extends Fragment {
 		
 		setHasOptionsMenu(true);
 		
+		mRunManager = RunManager.getInstance(getActivity());
+		
 		mPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		
 	}
 
 	@Override
@@ -80,10 +88,9 @@ public class ConfigFragment extends Fragment {
 			public void onClick(View v) {
 
 				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				startActivity(intent);
+				startActivityForResult(intent,REQUEST_CODE_UPDATE_LOCATION_SERVICE);
 			}
 		});
-		cisvConfigLocationService.setValue("");
 		
 		cisvConfigUseGuide.setOnClickListener(new View.OnClickListener() {
 			
@@ -129,6 +136,14 @@ public class ConfigFragment extends Fragment {
 		cisvConfigRecordTime.setDesc(recordTimeDesc);
 
 		cisvConfigRecordTime.setValue(String.valueOf(recordTime));
+		
+		boolean isProviderEnabled = 
+				mRunManager.checkIsProviderEnabled(mRunManager.getLocationProvider());
+		if(isProviderEnabled){
+			cisvConfigLocationService.setValueId(R.string.enabled);
+		}else{
+			cisvConfigLocationService.setValueId(R.string.disabled);
+		}
 	}
 	
 	private void showUpdateRecordTimeDialog(){
@@ -160,6 +175,11 @@ public class ConfigFragment extends Fragment {
 					.commit();
 				updateConfigUI();
 			}
+			break;
+			
+		case REQUEST_CODE_UPDATE_LOCATION_SERVICE:
+			
+			updateConfigUI();
 			break;
 
 		default:

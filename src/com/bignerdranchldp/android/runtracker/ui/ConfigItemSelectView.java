@@ -84,5 +84,9 @@ public class ConfigItemSelectView extends LinearLayout {
 	public void setValue(String value){
 		tvConfigValue.setText(value);
 	}
+	
+	public void setValueId(int valueId){
+		tvConfigValue.setText(valueId);
+	}
 
 }
