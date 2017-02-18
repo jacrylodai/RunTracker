@@ -300,6 +300,9 @@ public class RunListFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);		
+		
+		Log.i(TAG, "onCreate");
+		
 		setHasOptionsMenu(true);
 		
 		mPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -315,6 +318,8 @@ public class RunListFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
+
+		Log.i(TAG, "onStart");
 
 		//×¢²á¼àÌýÆ÷
 		IntentFilter intentFilter = new IntentFilter(RunManager.ACTION_LOCATION);
@@ -338,6 +343,8 @@ public class RunListFragment extends Fragment {
 	@Override
 	public void onStop() {
 
+		Log.i(TAG, "onStop");
+		
 		getActivity().unregisterReceiver(locationReceiver);
 		mIsRunningTimeClock = false;
 		
@@ -347,6 +354,8 @@ public class RunListFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+		Log.i(TAG, "onCreateView");
 		
 		View view = inflater.inflate(R.layout.fragment_run_list, container, false);
 		
@@ -453,6 +462,14 @@ public class RunListFragment extends Fragment {
 		}
 		
 		return view;
+	}
+	
+	@Override
+	public void onDestroy() {
+
+		Log.i(TAG, "onDestroy");
+		
+		super.onDestroy();
 	}
 	
 	

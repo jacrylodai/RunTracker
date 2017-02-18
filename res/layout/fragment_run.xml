@@ -5,23 +5,15 @@
     android:layout_margin="4dp"
     >
         
-    <TableRow
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:padding="4dp"
-            android:paddingRight="8dp"
-            android:text="@string/run_name"
-            />
-        <TextView android:id="@+id/tv_run_name"
+    <TextView android:id="@+id/tv_run_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:layout_marginLeft="8dp"
             android:text="游公园"
             android:textSize="18sp"
             />
-    </TableRow>
+    
     
     <TableRow>
         <TextView

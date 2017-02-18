@@ -17,7 +17,7 @@
     <!-- RunListActivity -->    
     <!-- layout -->
     <string name="run_desc">旅行记录:%s</string>
-    <string name="run_list_trip_point">所有旅行线路节点:</string>
+    <string name="run_list_trip_point">线路节点:</string>
     <string name="run_list_total_metre">总路程(米):</string>
     <string name="start">开始记录</string>
     <string name="stop">停止记录</string>
@@ -38,7 +38,7 @@
     <string name="run_name">旅行名称:</string>
     <string name="started">创建日期:</string>
     <string name="elapsed_time">记录时长:</string>
-    <string name="total_trip_point">所有旅行线路节点:</string>
+    <string name="total_trip_point">线路节点:</string>
     <string name="total_metre">总路程(米):</string>
     <string name="show_map">在地图上显示</string>
     <!-- menu -->

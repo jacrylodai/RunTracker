@@ -44,7 +44,7 @@
     <string name="run_name">Run Name:</string>
     <string name="started">Started:</string>
     <string name="elapsed_time">Elapsed Time:</string>
-    <string name="total_trip_point">Total trip point:</string>
+    <string name="total_trip_point">Trip point:</string>
     <string name="total_metre">Total Metre:</string>
     <string name="show_map">Show Map</string>
     <!-- menu -->
